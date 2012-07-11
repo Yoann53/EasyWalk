@@ -11,9 +11,6 @@
  */
 
 //bootstrap and check dependencies
-if (Ti.version < 1.8 ) {
-	alert('Sorry - this application template requires Titanium Mobile SDK 1.8 or later');
-}
 
 // This is a single context application with mutliple windows in a stack
 (function() {
@@ -29,10 +26,10 @@ if (Ti.version < 1.8 ) {
 	
 	var Window;
 	if (isTablet) {
-		Window = require('ui/tablet/ApplicationWindow');
+		alert('Désolé cette application ne fonctionne pas sur les tablettes');
 	}
 	else {
-		Window = require('ui/handheld/ApplicationWindow');
+		Window = require('ui/ApplicationWindow');
 	}
 
 	var ApplicationTabGroup = require('ui/common/ApplicationTabGroup');

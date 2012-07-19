@@ -31,7 +31,7 @@
 	else {
 		Window = require('ui/ApplicationWindow');
 	}
-
+//test
 	var ApplicationTabGroup = require('ui/common/ApplicationTabGroup');
 	new ApplicationTabGroup(Window).open();
 })();

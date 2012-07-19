@@ -66,6 +66,12 @@
 -(void)suspend:(id)sender;
 
 /**
+ EasyWalk Platform calls this method on entering background.
+ @param sender The sender of the event.
+ */
+-(void)paused:(id)sender;
+
+/**
  EasyWalk Platform calls this method on resume.
  @param sender The sender of the event.
  */

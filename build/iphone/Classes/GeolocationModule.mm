@@ -196,7 +196,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		for (KrollCallback *callback in [NSArray arrayWithArray:singleHeading])
 		{
-			KrollContext *ctx = (id<TiEvaluator>)[callback context];
+			KrollContext *ctx = (KrollContext*)[callback context];
 			if ([bridge krollContext] == ctx)
 			{
 				[singleHeading removeObject:callback];
@@ -212,7 +212,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		for (KrollCallback *callback in [NSArray arrayWithArray:singleLocation])
 		{
-			KrollContext *ctx = (id<TiEvaluator>)[callback context];
+			KrollContext *ctx = (KrollContext*)[callback context];
 			if ([bridge krollContext] == ctx)
 			{
 				[singleLocation removeObject:callback];
@@ -268,7 +268,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 		
 		if (purpose==nil)
 		{ 
-			NSLog(@"[ERROR] Starting in iOS 3.2, you must set the Ti.Geolocation.purpose property to indicate the purpose of using Location services for your application");
+			DebugLog(@"[WARN] The Ti.Geolocation.purpose property must be set.");
 		}
 		else
 		{

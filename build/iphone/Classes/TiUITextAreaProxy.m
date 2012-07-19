@@ -13,6 +13,10 @@
 
 @implementation TiUITextAreaProxy
 
+#pragma mark Defaults
+
+DEFINE_DEF_PROP(value,@"");
+
 @end
 
 #endif

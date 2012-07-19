@@ -45,6 +45,7 @@ extern NSString * EasyWalk$ModuleRequireFormat;
 	NSDictionary *preload;
 	NSMutableDictionary *modules;
 	EasyWalkObject *_easywalk;
+    KrollObject* console;
 	BOOL shutdown;
     BOOL evaluationError;
 	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,

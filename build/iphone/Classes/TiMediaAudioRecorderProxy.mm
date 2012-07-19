@@ -118,7 +118,7 @@
 				break;
 			default:
 			{
-				NSLog(@"[WARN] unsupported recording audio format: %d",fmt);
+				NSLog(@"[WARN] Unsupported recording audio format: %d",fmt);
 			}
 		}
 		
@@ -203,16 +203,16 @@
 {
     UInt32 newMode = [mode unsignedIntegerValue]; // Close as we can get to UInt32
     if (newMode != kAudioSessionCategory_RecordAudio && newMode != kAudioSessionCategory_PlayAndRecord) {
-        NSLog(@"[WARN] Invalid mode for audio recorder... setting to default.");
+        DebugLog(@"[WARN] Invalid mode for audio recorder... setting to default.");
         newMode = kAudioSessionCategory_RecordAudio;
     }
-	NSLog(@"[WARN] 'EasyWalk.Media.AudioRecorder.audioSessionMode' is deprecated; use 'EasyWalk.Media.audioSessionMode'");
+	DebugLog(@"[WARN] 'EasyWalk.Media.AudioRecorder.audioSessionMode' is deprecated; use 'EasyWalk.Media.audioSessionMode'");
 	[[TiMediaAudioSession sharedSession] setSessionMode:newMode];
 }
 
 -(NSNumber*)audioSessionMode
 {
-	NSLog(@"[WARN] 'EasyWalk.Media.AudioRecorder.audioSessionMode' is deprecated; use 'EasyWalk.Media.audioSessionMode'");	
+	DebugLog(@"[WARN] 'EasyWalk.Media.AudioRecorder.audioSessionMode' is deprecated; use 'EasyWalk.Media.audioSessionMode'");	
     return [NSNumber numberWithUnsignedInt:[[TiMediaAudioSession sharedSession] sessionMode]];
 }
 

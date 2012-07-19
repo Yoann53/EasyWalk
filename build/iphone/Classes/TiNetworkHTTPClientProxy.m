@@ -66,6 +66,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 			TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
 			TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
 			TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
+			TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew));
 			return NSUTF8StringEncoding;
 		}
 	}
@@ -93,6 +94,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
 		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
 		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
+		TRYENCODING("windows-1255",12,CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsHebrew));
 	}	
 	return NSUTF8StringEncoding;
 }
@@ -406,7 +408,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[request setUseCookiePersistence:YES];
 	[request setShowAccurateProgress:YES];
 	[request setShouldUseRFC2616RedirectBehaviour:YES];
-	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:YES];
+	BOOL keepAlive = [TiUtils boolValue:[self valueForKey:@"enableKeepAlive"] def:NO];
 	[request setShouldAttemptPersistentConnection:keepAlive];
 	//handled in send, as now optional
 	//[request setShouldRedirect:YES];
@@ -477,7 +479,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	// HACK: We are never actually in the "OPENED" state.  Needs to be fixed with XHR refactor.
 	if (readyState != NetworkClientStateHeaders && readyState != NetworkClientStateOpened) {
 		// TODO: Throw an exception here as per XHR standard
-		NSLog(@"[ERROR] Must set a connection to OPENED before send()");
+		DebugLog(@"[ERROR] Must set a connection to OPENED before send()");
 		return;
 	}
 	

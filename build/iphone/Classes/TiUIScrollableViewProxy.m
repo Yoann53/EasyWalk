@@ -21,6 +21,9 @@
     [self initializeProperty:@"pagingControlColor" defaultValue:@"black"];
     [self initializeProperty:@"pagingControlHeight" defaultValue:NUMINT(20)];
     [self initializeProperty:@"showPagingControl" defaultValue:NUMBOOL(NO)];
+    [self initializeProperty:@"pagingControlAlpha" defaultValue:NUMFLOAT(1.0)];
+    [self initializeProperty:@"overlayEnabled" defaultValue:NUMBOOL(NO)];
+    [self initializeProperty:@"pagingControlOnTop" defaultValue:NUMBOOL(NO)];
     [super _initWithProperties:properties];
 }
 
@@ -207,8 +210,8 @@
 			return [scrollWrappers objectAtIndex:index];
 		}
 	}
-	//TODO: Generate the view?
-	return [super parentViewForChild:child];
+	//Adding the view to a scrollable view is invalid.
+	return nil;
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration

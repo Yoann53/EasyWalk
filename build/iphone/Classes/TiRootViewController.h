@@ -110,10 +110,9 @@
 
 /**
  Tells the controller to resize its view to the size of main screen adjusted according to visibility of status bar.
- @param statusBarHidden If _YES_, sets view size as if status bar is hidden; otherwise, does not.
  @return The bounds of the view after resize. 
  */
--(CGRect)resizeViewForStatusBarHidden:(BOOL)statusBarHidden;
+-(CGRect)resizeViewForStatusBarHidden;
 
 /**
  Tells the controller to reposition all its subviews.
@@ -157,5 +156,6 @@
  */
 
 -(void)dismissKeyboard;
+@property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 
 @end

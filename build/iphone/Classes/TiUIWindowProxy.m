@@ -142,20 +142,20 @@
 
 -(void)boot:(BOOL)timeout args:args
 {
-	RELEASE_TO_NIL(latch);
-	contextReady = YES;
+    RELEASE_TO_NIL(latch);
+    contextReady = YES;
 
-	if (navWindow) 
-	{
-		[self prepareForNavView:[self navController]];
-	}
-	else 
-	{
-		if (timeout && ![context evaluationError])
-		{
-			[self open:args];
-		}
-	}
+    if (navWindow) {
+        [self prepareForNavView:[self navController]];
+        if (timeout) {
+            [self windowDidOpen];
+        }
+    }
+    else {
+        if (timeout && ![context evaluationError]) {
+            [self open:args];
+        }
+    }
 }
 
 -(NSMutableDictionary*)langConversionTable
@@ -165,13 +165,27 @@
 
 #pragma mark Public
 
+-(void)windowDidOpen
+{
+    if (context != nil) {
+        if (contextReady) {
+            [super windowDidOpen];
+        }
+        else {
+            VerboseLog(@"Ignoring windowDidOpen since context is not ready");
+        }
+    }
+    else {
+        [super windowDidOpen];
+    }
+}
+
 -(BOOL)_handleOpen:(id)args
 {
 	// this is a special case that calls open again above to cause the event lifecycle to
 	// happen after the JS context is fully up and ready
 	if (contextReady && context!=nil)
 	{
-		[self fireFocus:YES];
 		return YES;
 	}
 	
@@ -214,7 +228,7 @@
 		}
 		else 
 		{
-			NSLog(@"[ERROR] url not supported in a window. %@",url);
+			DebugLog(@"[ERROR] Url not supported in a window. %@",url);
 		}
 	}
 	
@@ -338,7 +352,7 @@
 	[self replaceValue:[self sanitizeURL:value] forKey:@"barImage" notification:NO];
 	if (controller!=nil)
 	{
-		TiThreadPerformOnMainThread(^{[self updateBarImage];}, [NSThread isMainThread]);
+		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
 	}
 }
 

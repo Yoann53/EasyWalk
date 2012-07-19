@@ -51,8 +51,6 @@
     BOOL animateHide;
 	BOOL editable;
 	BOOL moveable;
-	BOOL initiallyDisplayed;
-	NSIndexPath *initialSelection;
 	NSMutableArray * sectionIndex;
 	NSMutableDictionary * sectionIndexMap;
 	TiDimension rowHeight;

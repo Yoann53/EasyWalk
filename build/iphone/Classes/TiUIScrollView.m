@@ -72,6 +72,7 @@
 @end
 
 @implementation TiUIScrollView
+@synthesize contentWidth;
 
 - (void) dealloc
 {
@@ -112,7 +113,9 @@
 
 -(void)setNeedsHandleContentSizeIfAutosizing
 {
-	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight))
+	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight) ||
+        TiDimensionIsAutoSize(contentWidth) || TiDimensionIsAutoSize(contentHeight) ||
+        TiDimensionIsUndefined(contentWidth) || TiDimensionIsUndefined(contentHeight))
 	{
 		[self setNeedsHandleContentSize];
 	}
@@ -140,6 +143,9 @@
 
 -(void)handleContentSize
 {
+	if (!needsHandleContentSize) {
+		return;
+	}
 	CGSize newContentSize = [self bounds].size;
 	CGFloat scale = [scrollView zoomScale];
 
@@ -150,11 +156,14 @@
 			newContentSize.width = MAX(newContentSize.width,contentWidth.value);
 			break;
 		}
-		case TiDimensionTypeAuto:
+        case TiDimensionTypeUndefined:
+        case TiDimensionTypeAutoSize:
+		case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
 		{
 			newContentSize.width = MAX(newContentSize.width,[(TiViewProxy *)[self proxy] autoWidthForSize:[self bounds].size]);
 			break;
 		}
+        case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
 		default: {
 			break;
 		}
@@ -167,11 +176,14 @@
 			minimumContentHeight = contentHeight.value;
 			break;
 		}
-		case TiDimensionTypeAuto:
+        case TiDimensionTypeUndefined:
+        case TiDimensionTypeAutoSize:
+		case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"            
 		{
 			minimumContentHeight=[(TiViewProxy *)[self proxy] autoHeightForSize:[self bounds].size];
 			break;
 		}
+        case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec           
 		default:
 			minimumContentHeight = newContentSize.height;
 			break;
@@ -185,7 +197,7 @@
 	wrapperBounds.size = newContentSize;
 	[wrapperView setFrame:wrapperBounds];
 	needsHandleContentSize = NO;
-	[(TiViewProxy *)[self proxy] layoutChildren:NO];
+	[(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
@@ -193,6 +205,27 @@
 	//Treat this as a size change
 	[(TiViewProxy *)[self proxy] willChangeSize];
     [super frameSizeChanged:frame bounds:visibleBounds];
+}
+
+-(void)scrollToBottom
+{
+    /*
+     * Calculate the bottom height & width and, sets the offset from the 
+     * content view’s origin that corresponds to the receiver’s origin.
+     */ 
+    UIScrollView *currScrollView = [self scrollView];
+    
+    CGSize svContentSize = currScrollView.contentSize;
+    CGSize svBoundSize = currScrollView.bounds.size;
+    CGFloat svBottomInsets = currScrollView.contentInset.bottom;
+    
+    CGFloat bottomHeight = svContentSize.height - svBoundSize.height + svBottomInsets;
+    CGFloat bottomWidth = svContentSize.width - svBoundSize.width;
+
+    CGPoint newOffset = CGPointMake(bottomWidth,bottomHeight);
+    
+    [currScrollView setContentOffset:newOffset animated:YES];
+    
 }
 
 -(void)setContentWidth_:(id)value
@@ -251,10 +284,10 @@
 
 -(void)setZoomScale_:(id)args
 {
-	CGFloat scale = [TiUtils floatValue:args];
+	CGFloat scale = [TiUtils floatValue:args def:1.0];
 	[[self scrollView] setZoomScale:scale];
 	scale = [[self scrollView] zoomScale]; //Why are we doing this? Because of minZoomScale or maxZoomScale.
-	[[self proxy] replaceValue:NUMFLOAT(scale) forKey:@"scale" notification:NO];
+	[[self proxy] replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
 	if ([self.proxy _hasListeners:@"scale"])
 	{
 		[self.proxy fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -265,15 +298,26 @@
 
 -(void)setMaxZoomScale_:(id)args
 {
-	[[self scrollView] setMaximumZoomScale:[TiUtils floatValue:args]];
+    CGFloat val = [TiUtils floatValue:args def:1.0];
+    [[self scrollView] setMaximumZoomScale:val];
+    if ([[self scrollView] zoomScale] > val) {
+        [self setZoomScale_:args];
+    }
+    else if ([[self scrollView] zoomScale] < [[self scrollView] minimumZoomScale]){
+        [self setZoomScale_:[NSNumber numberWithFloat:[[self scrollView] minimumZoomScale]]];
+    }
 }
 
 -(void)setMinZoomScale_:(id)args
 {
-	[[self scrollView] setMinimumZoomScale:[TiUtils floatValue:args]];
+    CGFloat val = [TiUtils floatValue:args def:1.0];
+    [[self scrollView] setMinimumZoomScale:val];
+    if ([[self scrollView] zoomScale] < val) {
+        [self setZoomScale_:args];
+    }
 }
 
--(void)canCancelEvents_:(id)args
+-(void)setCanCancelEvents_:(id)args
 {
 	[[self scrollView] setCanCancelContentTouches:[TiUtils boolValue:args def:YES]];
 }
@@ -300,6 +344,27 @@
 {
 	// scale between minimum and maximum. called after any 'bounce' animations
 	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndZooming:scrollView withView:(UIView*)view atScale:scale];
+}
+
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView_
+{
+	CGSize boundsSize = scrollView.bounds.size;
+    CGRect frameToCenter = wrapperView.frame;
+	if (TiDimensionIsAuto(contentWidth)) {
+		if (frameToCenter.size.width < boundsSize.width) {
+			frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
+		} else {
+			frameToCenter.origin.x = 0;
+		}
+	}
+	if (TiDimensionIsAuto(contentHeight)) {
+		if (frameToCenter.size.height < boundsSize.height) {
+			frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
+		} else {
+			frameToCenter.origin.y = 0;
+		}
+	}
+    wrapperView.frame = frameToCenter;	
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView_  

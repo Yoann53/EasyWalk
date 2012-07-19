@@ -44,15 +44,18 @@
 @synthesize children;
 -(NSArray*)children
 {
+    NSArray* copy = nil;
+    
 	pthread_rwlock_rdlock(&childrenLock);
 	if (windowOpened==NO && children==nil && pendingAdds!=nil)
 	{
-		NSArray *copy = [pendingAdds mutableCopy];
-		pthread_rwlock_unlock(&childrenLock);
-		return [copy autorelease];
+		copy = [pendingAdds mutableCopy];
 	}
+    else {
+        copy = [children mutableCopy];
+    }
 	pthread_rwlock_unlock(&childrenLock);
-	return children;
+	return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
 }
 
 -(void)setVisible:(NSNumber *)newVisible withObject:(id)args
@@ -201,7 +204,7 @@
 	else
 	{
 		pthread_rwlock_unlock(&childrenLock);
-		NSLog(@"[WARN] called remove for %@ on %@, but %@ isn't a child or has already been removed",arg,self,arg);
+		DebugLog(@"[WARN] Called remove for %@ on %@, but %@ isn't a child or has already been removed.",arg,self,arg);
 		return;
 	}
 
@@ -307,7 +310,7 @@ if (ENFORCE_BATCH_UPDATE) { \
     }\
     else {\
         if (!TiDimensionIsUndefined(result)) {\
-            NSLog(@"[WARN] Invalid value %@ specified for property %@",[TiUtils stringValue:value],@#layoutName); \
+            DebugLog(@"[WARN] Invalid value %@ specified for property %@",[TiUtils stringValue:value],@#layoutName); \
         } \
         layoutProperties.layoutName = TiDimensionUndefined;\
     }\
@@ -324,6 +327,15 @@ if (ENFORCE_BATCH_UPDATE) { \
     postaction; \
 }
 
+#define LAYOUTFLAGS_SETTER(methodName,layoutName,flagName,postaction)	\
+-(void)methodName:(id)value	\
+{	\
+	CHECK_LAYOUT_UPDATE(layoutName,value) \
+	layoutProperties.layoutFlags.flagName = [TiUtils boolValue:value];	\
+	[self replaceValue:value forKey:@#layoutName notification:NO];	\
+	postaction; \
+}
+
 LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setTop,top,TiDimensionFromObject,[self willChangePosition])
 LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setBottom,bottom,TiDimensionFromObject,[self willChangePosition])
 
@@ -338,6 +350,8 @@ LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeS
 
 LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiFixedValueRuleFromObject,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[self willChangeSize])
+
+LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willChangeLayout])
 
 // Special handling to try and avoid Apple's detection of private API 'layout'
 -(void)setValue:(id)value forUndefinedKey:(NSString *)key
@@ -367,10 +381,15 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	TiRect *rect = [[TiRect alloc] init];
     if ([self viewAttached]) {
         [self makeViewPerformSelector:@selector(fillBoundsToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
+        id defaultUnit = [[NSUserDefaults standardUserDefaults] objectForKey:@"ti.ui.defaultunit"];
+        if ([defaultUnit isKindOfClass:[NSString class]]) {
+            [rect convertToUnit:defaultUnit];
+        }
     }
     else {
         [rect setRect:CGRectZero];
     }
+    
     return [rect autorelease];
 }
 
@@ -394,6 +413,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         viewRect.origin.x += viewPosition.x;
         viewRect.origin.y += viewPosition.y;
         [rect setRect:viewRect];
+        
+        id defaultUnit = [[NSUserDefaults standardUserDefaults] objectForKey:@"ti.ui.defaultunit"];
+        if ([defaultUnit isKindOfClass:[NSString class]]) {
+            [rect convertToUnit:defaultUnit];
+        }       
     }
     else {
         [rect setRect:CGRectZero];
@@ -538,7 +562,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
 		{
 			CGFloat width = [self autoWidthForSize:CGSizeMake(1000,1000)];
-			CGFloat height = [self autoHeightForSize:CGSizeMake(width,1000)];
+			CGFloat height = [self autoHeightForSize:CGSizeMake(width,0)];
 			if (width > 0 && height > 0)
 			{
 				size = CGSizeMake(width, height);
@@ -660,7 +684,8 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     CGFloat thisWidth = 0.0;
 
 	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy * thisChildProxy in self.children)
+    NSArray* subproxies = [self children];
+	for (TiViewProxy * thisChildProxy in subproxies)
 	{
         if (isHorizontal) {
             sandBox = CGRectZero;
@@ -684,11 +709,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	if([self respondsToSelector:@selector(verifyWidth:)])
 	{
 		result = [self verifyWidth:result];
-	}
-
-	if (result == 0)
-	{
-		NSLog(@"[WARN] %@ has an auto width value of 0, meaning this view may not be visible.",self);
 	}
     
     return result;
@@ -748,11 +768,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	{
 		result = [self verifyHeight:result];
 	}
-	
-	if (result == 0)
-	{
-		NSLog(@"[WARN] %@ has an auto height value of 0, meaning this view may not be visible.",self);
-	}
+
 	return result;
 }
 
@@ -810,6 +826,9 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     CGFloat suggestedHeight = size.height;
     BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
     BOOL recheckForFill = NO;
+    
+    //Ensure that autoHeightForSize is called with the lowest limiting bound
+    CGFloat desiredWidth = MIN([self minimumParentWidthForSize:size],size.width);
 	    
     CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, size.width)
     + TiDimensionCalculateValue(layoutProperties.right, size.width);
@@ -825,7 +844,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
     else if (TiDimensionIsAutoFill(layoutProperties.height) || (TiDimensionIsAuto(layoutProperties.height) && followsFillBehavior) ) 
 	{
 		recheckForFill = YES;
-		result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+		result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
 	}
     else if (TiDimensionIsUndefined(layoutProperties.height))
     {
@@ -840,12 +859,12 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
         }
         else {
             recheckForFill = followsFillBehavior;
-            result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+            result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
         }       
     }
 	else
 	{
-		result += [self autoHeightForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+		result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
 	}
     if (recheckForFill && (result < suggestedHeight) ) {
         result = suggestedHeight;
@@ -881,9 +900,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
     if ( (bounds.width == 0) && !(TiDimensionIsDip(barButtonLayout.width) ) ) {
         bounds.width = [self autoWidthForSize:CGSizeMake(1000, 1000)];
+        barButtonLayout.width = TiDimensionDip(bounds.width);
     }
     if ( (bounds.height == 0) && !(TiDimensionIsDip(barButtonLayout.height) ) ) {
         bounds.height = [self autoHeightForSize:CGSizeMake(bounds.width, 1000)];
+        barButtonLayout.height = TiDimensionDip(bounds.height);
     }
 	CGRect barBounds;
 	barBounds.origin = CGPointZero;
@@ -962,7 +983,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		[view configurationSet];
 
 		pthread_rwlock_rdlock(&childrenLock);
-		NSArray * childrenArray = [[self children] copy];
+		NSArray * childrenArray = [[self children] retain];
 		pthread_rwlock_unlock(&childrenLock);
 		
 		for (id child in childrenArray)
@@ -1016,6 +1037,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 }
 
 #pragma mark Methods subclasses should override for behavior changes
+-(BOOL)optimizeSubviewInsertion
+{
+    //Return YES for any view that implements a wrapperView that is a TiUIView (Button and ScrollView currently) and a basic view
+    return ( [view isMemberOfClass:[TiUIView class]] ) ;
+}
 
 -(BOOL)suppressesRelayout
 {
@@ -1161,6 +1187,39 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	// for subclasses
 }
 
+-(void)parentWillAppear:(id)args
+{
+    if ([self viewAttached]) {
+        pthread_rwlock_rdlock(&childrenLock);
+        [children makeObjectsPerformSelector:@selector(parentWillAppear:) withObject:args];
+        pthread_rwlock_unlock(&childrenLock);
+    }
+}
+-(void)parentDidAppear:(id)args
+{
+    if ([self viewAttached]) {
+        pthread_rwlock_rdlock(&childrenLock);
+        [children makeObjectsPerformSelector:@selector(parentDidAppear:) withObject:args];
+        pthread_rwlock_unlock(&childrenLock);
+    }
+}
+-(void)parentWillDisappear:(id)args
+{
+    if ([self viewAttached]) {
+        pthread_rwlock_rdlock(&childrenLock);
+        [children makeObjectsPerformSelector:@selector(parentWillDisappear:) withObject:args];
+        pthread_rwlock_unlock(&childrenLock);
+    }
+}
+-(void)parentDidDisappear:(id)args
+{
+    if ([self viewAttached]) {
+        pthread_rwlock_rdlock(&childrenLock);
+        [children makeObjectsPerformSelector:@selector(parentDidDisappear:) withObject:args];
+        pthread_rwlock_unlock(&childrenLock);
+    }
+}
+
 
 #pragma mark Housecleaning state accessors
 
@@ -1241,6 +1300,10 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)_initWithProperties:(NSDictionary*)properties
 {
     [self startLayout:nil];
+	// Set horizontal layout wrap:true as default 
+	layoutProperties.layoutFlags.horizontalWrap = YES;
+	[self initializeProperty:@"horizontalWrap" defaultValue:NUMBOOL(YES)];
+	
 	if (properties!=nil)
 	{
 		NSString *objectId = [properties objectForKey:@"id"];
@@ -1354,7 +1417,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	}
 	else
 	{
-		NSLog(@"[WARN] No TiView for Proxy: %@, couldn't find class: %@",self,proxyName);
+		DeveloperLog(@"[WARN] No TiView for Proxy: %@, couldn't find class: %@",self,proxyName);
 	}
 	return [[TiUIView alloc] initWithFrame:[self appFrame]];
 }
@@ -1852,8 +1915,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         if(relayout)
         {
             [self determineSandboxBounds];
-            [self relayout];
         }
+        [self relayout];
 		[self layoutChildren:NO];
 		if (!CGRectEqualToRect(oldFrame, [[self view] frame])) {
 			[parent childWillResize:self];
@@ -1938,19 +2001,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	int childZindex = [childProxy vzIndex];
 	BOOL earlierSibling = YES;
 	UIView * ourView = [self parentViewForChild:childProxy];
-	
-	// Have to loop through the view first to find non-Ti views, and consider them
-	// to be on the "bottom" of the view drawing stack, so Ti-everything draws atop them
-	// TODO: This is probably slow - can we reliably cache this value?
-	for (UIView* subview in [ourView subviews]) 
-	{
-		if (![subview isKindOfClass:[TiUIView class]]) {
-			result++;
-		}
-	}
-	
+
+    if (![self optimizeSubviewInsertion]) {
+        for (UIView* subview in [ourView subviews]) 
+        {
+            if (![subview isKindOfClass:[TiUIView class]]) {
+                result++;
+            }
+        }
+    }
 	pthread_rwlock_rdlock(&childrenLock);
-	for (TiViewProxy * thisChildProxy in self.children)
+	for (TiViewProxy * thisChildProxy in children)
 	{
 		if(thisChildProxy == childProxy)
 		{
@@ -2021,24 +2082,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 #ifdef VERBOSE
 	else
 	{
-		NSLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
+		DeveloperLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
 	}
 #endif
 
-}
-
--(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
-{
-	if (newSuperview==view)
-	{
-		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
-		return;
-	}
-	ApplyConstraintToViewWithBounds(&layoutProperties, [self view], bounds);
-	if([view superview]!=newSuperview)	//TODO: Refactor out.
-	{
-		[newSuperview addSubview:view];
-	}
 }
 
 -(void)layoutChildrenIfNeeded
@@ -2123,8 +2170,10 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         return nil;
     }
     
+	BOOL horizontalNoWrap = TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && !TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
     NSMutableArray * measuredBounds = [NSMutableArray arrayWithCapacity:[childArray count]];
     NSUInteger i, count = [childArray count];
+	int maxHeight = 0;
     
     //First measure the sandbox bounds
     for (id child in childArray) 
@@ -2135,6 +2184,9 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         if (ourView != nil)
         {
             CGRect bounds = [ourView bounds];
+			if (horizontalNoWrap) {
+				maxHeight = MAX(maxHeight, bounds.size.height);
+			}
             if(!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle))
             {
                 bounds = [self computeChildSandbox:child withBounds:bounds];
@@ -2151,9 +2203,16 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
     
     //If it is a horizontal layout ensure that all the children in a row have the
     //same height for the sandbox
-    if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && (count > 1) )
+	if (horizontalNoWrap)
+	{
+		for (i=0; i<count; i++) 
+		{
+			[(TiRect*)[measuredBounds objectAtIndex:i] setHeight:[NSNumber numberWithInt:maxHeight]];
+		}
+	}
+	else if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle) && (count > 1) )
     {
-        int startIndex,endIndex,maxHeight, currentTop;
+        int startIndex,endIndex, currentTop;
         startIndex = endIndex = maxHeight = currentTop = -1;
         for (i=0; i<count; i++) 
         {
@@ -2209,41 +2268,45 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         if (boundingValue < 0) {
             boundingValue = 0;
         }
+
+        //Ensure that autoHeightForSize is called with the lowest limiting bound
+        CGFloat desiredWidth = MIN([child minimumParentWidthForSize:bounds.size],bounds.size.width);
+
         //TOP + BOTTOM
-        CGFloat offset = TiDimensionCalculateValue([child layoutProperties]->top, boundingValue)
-        + TiDimensionCalculateValue([child layoutProperties]->bottom, boundingValue);
+        CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
+        + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
         //LEFT + RIGHT
-        CGFloat offset2 = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
+        CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
         + TiDimensionCalculateValue([child layoutProperties]->right, bounds.size.width);
         
         TiDimension constraint = [child layoutProperties]->height;
         
         if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
         {
-            bounds.size.height =  TiDimensionCalculateValue(constraint, bounds.size.height) + offset;
+            bounds.size.height =  TiDimensionCalculateValue(constraint, bounds.size.height) + offsetV;
             verticalLayoutBoundary += bounds.size.height;
         }
         else if (TiDimensionIsAutoFill(constraint))
         {
             //Fill up the remaining
-            bounds.size.height = boundingValue + offset;
+            bounds.size.height = boundingValue + offsetV;
             verticalLayoutBoundary += bounds.size.height;
         }
         else if (TiDimensionIsAutoSize(constraint))
         {
-            bounds.size.height = [child autoHeightForSize:CGSizeMake(bounds.size.width - offset2,boundingValue)] + offset;
+            bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offsetH,boundingValue)] + offsetV;
             verticalLayoutBoundary += bounds.size.height;
         }
         else if (TiDimensionIsAuto(constraint) )
         {
             if (followsFillBehavior) {
                 //FILL behavior
-                bounds.size.height = boundingValue + offset;
+                bounds.size.height = boundingValue + offsetV;
                 verticalLayoutBoundary += bounds.size.height;
             }
             else {
                 //SIZE behavior
-                bounds.size.height = [child autoHeightForSize:CGSizeMake(bounds.size.width - offset2,boundingValue)] + offset;
+                bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offsetH,boundingValue)] + offsetV;
                 verticalLayoutBoundary += bounds.size.height;
             }
         }
@@ -2251,41 +2314,42 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         {
             if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->centerY) ) {
                 CGFloat height = 2 * ( TiDimensionCalculateValue([child layoutProperties]->centerY, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->top, boundingValue) );
-                bounds.size.height = height + offset;
+                bounds.size.height = height + offsetV;
                 verticalLayoutBoundary += bounds.size.height;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->bottom) ) {
-                bounds.size.height = boundingValue + offset;
+                bounds.size.height = boundingValue + offsetV;
                 verticalLayoutBoundary += bounds.size.height;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->centerY) && !TiDimensionIsUndefined([child layoutProperties]->bottom) ) {
                 CGFloat height = 2 * ( boundingValue - TiDimensionCalculateValue([child layoutProperties]->bottom, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->centerY, boundingValue));
-                bounds.size.height = height + offset;
+                bounds.size.height = height + offsetV;
                 verticalLayoutBoundary += bounds.size.height;
             }
             else if (followsFillBehavior) {
                 //FILL behavior
-                bounds.size.height = boundingValue + offset;
+                bounds.size.height = boundingValue + offsetV;
                 verticalLayoutBoundary += bounds.size.height;
             }
             else {
                 //SIZE behavior
-                bounds.size.height = [child autoHeightForSize:CGSizeMake(bounds.size.width - offset2,boundingValue)] + offset;
+                bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offsetH,boundingValue)] + offsetV;
                 verticalLayoutBoundary += bounds.size.height;
             }
         }
     }
     else if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle))
     {
+		BOOL horizontalWrap = TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
         BOOL followsFillBehavior = TiDimensionIsAutoFill([child defaultAutoWidthBehavior:nil]);
         CGFloat boundingWidth = bounds.size.width-horizontalLayoutBoundary;
         CGFloat boundingHeight = bounds.size.height-verticalLayoutBoundary;
         
         //LEFT + RIGHT
-        CGFloat offset = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
+        CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
         + TiDimensionCalculateValue([child layoutProperties]->right, bounds.size.width);
         //TOP + BOTTOM
-        CGFloat offset2 = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
+        CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
         + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
         
         TiDimension constraint = [child layoutProperties]->width;
@@ -2295,35 +2359,37 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
         
         if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
         {
-            desiredWidth =  TiDimensionCalculateValue(constraint, bounds.size.width) + offset;
+            desiredWidth =  TiDimensionCalculateValue(constraint, bounds.size.width) + offsetH;
         }
         else if (TiDimensionIsUndefined(constraint))
         {
             if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->centerX) ) {
                 desiredWidth = 2 * ( TiDimensionCalculateValue([child layoutProperties]->centerX, boundingWidth) - TiDimensionCalculateValue([child layoutProperties]->left, boundingWidth) );
-                desiredWidth += offset;
+                desiredWidth += offsetH;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
                 recalculateWidth = YES;
                 followsFillBehavior = YES;
-                desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)] + offset;
+                desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight - offsetV)] + offsetH;
             }
             else if (!TiDimensionIsUndefined([child layoutProperties]->centerX) && !TiDimensionIsUndefined([child layoutProperties]->right) ) {
-                CGFloat height = 2 * ( boundingWidth - TiDimensionCalculateValue([child layoutProperties]->right, boundingWidth) - TiDimensionCalculateValue([child layoutProperties]->centerX, boundingWidth));
-                desiredWidth += offset;
+				desiredWidth = 2 * ( boundingWidth - TiDimensionCalculateValue([child layoutProperties]->right, boundingWidth) - TiDimensionCalculateValue([child layoutProperties]->centerX, boundingWidth));
+                desiredWidth += offsetH;
             }
             else {
                 recalculateWidth = YES;
-                desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)] + offset;
+                desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight - offsetV)] + offsetH;
             }
         }
         else {
             //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
             recalculateWidth = YES;
-            desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)] + offset;
+            desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight - offsetV)] + offsetH;
             if (TiDimensionIsAutoSize(constraint)) {
                 followsFillBehavior = NO;
-            }
+            } else if(TiDimensionIsAutoFill(constraint)) {
+				followsFillBehavior = YES;
+			}
         }
         CGFloat desiredHeight;
         BOOL childIsFixedHeight = TiDimensionIsPercent([child layoutProperties]->height) || TiDimensionIsDip([child layoutProperties]->height);
@@ -2333,15 +2399,15 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(0,bounds.size.height)];
             bounds.size.height = desiredHeight;
         }
-        if (desiredWidth > boundingWidth) {
+        if (horizontalWrap && (desiredWidth > boundingWidth)) {
             if (horizontalLayoutBoundary == 0.0) {
                 //This is start of row
                 bounds.origin.x = horizontalLayoutBoundary;
                 bounds.origin.y = verticalLayoutBoundary;
                 if (!childIsFixedHeight)
                 {
-                    desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
-                    bounds.size.height = desiredHeight + offset2;
+                    desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
+                    bounds.size.height = desiredHeight;
                 }
                 verticalLayoutBoundary += bounds.size.height;
                 horizontalLayoutRowHeight = 0.0;
@@ -2361,8 +2427,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                     if (desiredWidth < boundingWidth) {
                         if (!childIsFixedHeight)
                         {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
-                            bounds.size.height = desiredHeight + offset2;
+                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
+                            bounds.size.height = desiredHeight;
                         }                    
                         horizontalLayoutBoundary += desiredWidth;
                         bounds.size.width = desiredWidth;
@@ -2372,8 +2438,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                         //Will take up whole row
                         if (!childIsFixedHeight)
                         {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
-                            bounds.size.height = desiredHeight + offset2;
+                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth,boundingHeight)];
+                            bounds.size.height = desiredHeight;
                         }                    
                         verticalLayoutBoundary += bounds.size.height;
                     }
@@ -2382,20 +2448,20 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                     //Will take up whole row
                     if (!childIsFixedHeight)
                     {
-                        desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
-                        bounds.size.height = desiredHeight + offset2;
+                        desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth,boundingHeight)];
+                        bounds.size.height = desiredHeight;
                     }                    
                     verticalLayoutBoundary += bounds.size.height;
                 }
                 else {
-                    desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offset,boundingHeight - offset2)] + offset;
+                    desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH,boundingHeight - offsetV)] + offsetH;
                     if (desiredWidth < boundingWidth) {
                         if (!childIsFixedHeight)
                         {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
-                            bounds.size.height = desiredHeight + offset2;
+                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
+                            bounds.size.height = desiredHeight;
                         }                    
-                        bounds.size.width = desiredWidth + offset;
+                        bounds.size.width = desiredWidth;
                         horizontalLayoutBoundary = bounds.size.width;
                         horizontalLayoutRowHeight = bounds.size.height;
                     }
@@ -2403,8 +2469,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
                         //Will take up whole row
                         if (!childIsFixedHeight)
                         {
-                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth - offset,boundingHeight)];
-                            bounds.size.height = desiredHeight + offset2;
+                            desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth,boundingHeight)];
+                            bounds.size.height = desiredHeight;
                         }
                         verticalLayoutBoundary += bounds.size.height;
                     }
@@ -2416,8 +2482,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             //If it fits update the horizontal layout row height
             if (!childIsFixedHeight)
             {
-                desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth - offset,boundingHeight)];
-                bounds.size.height = desiredHeight + offset2;
+                desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
+                bounds.size.height = desiredHeight;
             }
             bounds.origin.x = horizontalLayoutBoundary;
             bounds.origin.y = verticalLayoutBoundary;
@@ -2434,9 +2500,13 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             {
                 //FILL that fits in left over space. Move to next row
                 bounds.size.width = boundingWidth;
-                horizontalLayoutBoundary = 0.0;
-                verticalLayoutBoundary += horizontalLayoutRowHeight;
-                horizontalLayoutRowHeight = 0.0;
+				if (horizontalWrap) {
+					horizontalLayoutBoundary = 0.0;
+                	verticalLayoutBoundary += horizontalLayoutRowHeight;
+					horizontalLayoutRowHeight = 0.0;
+				} else {
+					horizontalLayoutBoundary += bounds.size.width;
+				}
             }
             else
             {
@@ -2472,15 +2542,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 			
 			pthread_rwlock_rdlock(&childrenLock);
 			int childProxyIndex = [children indexOfObject:child];
+            
+			BOOL optimizeInsertion = [self optimizeSubviewInsertion];
 
 			for (TiUIView * thisView in [ourView subviews])
 			{
-				if (![thisView isKindOfClass:[TiUIView class]])
+				if ( (!optimizeInsertion) && (![thisView isKindOfClass:[TiUIView class]]) )
 				{
 					insertPosition ++;
 					continue;
 				}
-				
+                
 				int thisZIndex=[(TiViewProxy *)[thisView proxy] vzIndex];
 				if (childZIndex < thisZIndex) //We've found our stop!
 				{
@@ -2509,10 +2581,8 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 	[child setSandboxBounds:bounds];
 	if ([[child view] animating])
 	{
-#ifdef DEBUG
-	// changing the layout while animating is bad, ignore for now
-		NSLog(@"[DEBUG] ignoring new layout while animating in layout Child..");
-#endif
+        // changing the layout while animating is bad, ignore for now
+        DebugLog(@"[WARN] New layout set while view %@ animating: Will relayout after animation.", child);
 	}
 	else
 	{
@@ -2538,7 +2608,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 
 //TODO: This is really expensive, but what can you do? Laying out the child needs the lock again.
 	pthread_rwlock_rdlock(&childrenLock);
-	NSArray * childrenArray = [[self children] copy];
+	NSArray * childrenArray = [[self children] retain];
 	pthread_rwlock_unlock(&childrenLock);
     
     NSUInteger childCount = [childrenArray count];

@@ -13,6 +13,7 @@
 @interface AnalyticsModule : TiModule {
 @private
 	PLSqliteDatabase* database;
+	NSOperationQueue * eventQueue;
 	NSTimer *retryTimer;
 	NSTimer *flushTimer;
 	NSURL *url;

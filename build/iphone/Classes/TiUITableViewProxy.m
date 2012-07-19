@@ -37,6 +37,7 @@ NSArray * tableKeySequence;
 	return [sections count];
 }
 
+USE_VIEW_FOR_CONTENT_HEIGHT
 
 #pragma mark Internal
 
@@ -48,6 +49,13 @@ NSArray * tableKeySequence;
 		sections = [[NSMutableArray array] retain];
 	}
 	return self;
+}
+
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    [self replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
+    [self replaceValue:NUMBOOL(YES) forKey:@"hideSearchOnSelection" notification:NO];
+    [super _initWithProperties:properties];
 }
 
 - (void) dealloc
@@ -410,7 +418,7 @@ NSArray * tableKeySequence;
 		
 	if ([sections count]==0)
 	{
-		NSLog(@"[WARN] no rows found in table, ignoring delete");
+		DebugLog(@"[WARN] No rows found in table, ignoring delete");
 		return;
 	}
 	
@@ -419,7 +427,7 @@ NSArray * tableKeySequence;
 	
 	if (section==nil || row == nil)
 	{
-		NSLog(@"[WARN] no row found for index: %d",index);
+		DebugLog(@"[WARN] No row found for index: %d",index);
 		return;
 	}
 	
@@ -516,7 +524,7 @@ NSArray * tableKeySequence;
 	{
 		//No table, we have to do the data update ourselves.
 		//TODO: Implement. Better yet, refactor.
-		NSLog(@"[WARN] Table view was not in place before insertRowBefore was called. (Tell Blain or Steve to fix it!)");
+		DebugLog(@"[WARN] Table view was not in place before insertRowBefore was called.");
 	}
 
 }
@@ -593,7 +601,7 @@ NSArray * tableKeySequence;
 	{
 		//No table, we have to do the data update ourselves.
 		//TODO: Implement. Better yet, refactor.
-		NSLog(@"[WARN] Table view was not in place before insertRowAfter was called. (Tell Blain or Steve to fix it!)");
+		DebugLog(@"[WARN] Table view was not in place before insertRowAfter was called.");
 	}
 
 }
@@ -625,12 +633,15 @@ NSArray * tableKeySequence;
     {
         id header = [row valueForKey:@"header"];
         TiUITableViewActionType actionType = TiUITableViewActionAppendRow;
-        TiUITableViewSectionProxy* section = [sections lastObject];
+        __block TiUITableViewSectionProxy* section = nil;
+        TiThreadPerformOnMainThread(^{
+            section = [sections lastObject];
+        }, YES);
+        
         if (header != nil) {
+            NSInteger newSectionIndex = section.section + 1;
             section = [self sectionWithHeader:header table:table];		
-            TiThreadPerformOnMainThread(^{
-                section.section = [sections count];
-            }, YES);
+            section.section = newSectionIndex;
             actionType = TiUITableViewActionAppendRowWithSection;
         }
         row.section = section;

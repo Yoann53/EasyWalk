@@ -24,6 +24,7 @@
 {
 	[button removeTarget:self action:NULL forControlEvents:UIControlEventAllTouchEvents];
 	RELEASE_TO_NIL(button);
+	RELEASE_TO_NIL(viewGroupWrapper);
 	RELEASE_TO_NIL(backgroundImageCache)
 	RELEASE_TO_NIL(backgroundImageUnstretchedCache);
 	[super dealloc];
@@ -36,8 +37,8 @@
 		return nil;
 	}
 	
-	if([superResult isKindOfClass:[TiUIView class]] 
-	   && ![(TiUIView*)superResult touchEnabled]) {
+	if((viewGroupWrapper == superResult) || ([superResult isKindOfClass:[TiUIView class]] 
+	   && ![(TiUIView*)superResult touchEnabled])) {
 		return [self button];
 	}
 
@@ -53,12 +54,8 @@
 
 -(void)setHighlighting:(BOOL)isHiglighted
 {
-	TiUIButtonProxy * ourProxy = (TiUIButtonProxy *)[self proxy];
-	
-	NSArray * proxyChildren = [ourProxy children];
-	for (TiViewProxy * thisProxy in proxyChildren)
+	for (TiUIView * thisView in [viewGroupWrapper subviews])
 	{
-		TiUIView * thisView = [thisProxy view];
 		if ([thisView respondsToSelector:@selector(setHighlighted:)])
 		{
 			[(id)thisView setHighlighted:isHiglighted];
@@ -79,9 +76,20 @@
 		[button setBackgroundImage:backgroundImageCache forState:UIControlStateNormal];
 		return;
 	}
-	if (backgroundImageUnstretchedCache == nil) {
-		backgroundImageUnstretchedCache = [[UIImage alloc] initWithCGImage:[backgroundImageCache CGImage] scale:[backgroundImageCache scale] orientation:[backgroundImageCache imageOrientation]];
-	}
+    //If the bounds are smaller than the image size render it in an imageView and get the image of the view.
+    //Should be pretty inexpensive since it happens rarely. TIMOB-9166
+    CGSize unstrechedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
+    if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstrechedSize,bounds.size) ) {
+        UIImageView* theView = [[UIImageView alloc] initWithFrame:bounds];
+        [theView setImage:backgroundImageCache];
+        UIGraphicsBeginImageContextWithOptions(bounds.size, [theView.layer isOpaque], 0.0);
+        [theView.layer renderInContext:UIGraphicsGetCurrentContext()];
+        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        RELEASE_TO_NIL(backgroundImageUnstretchedCache);
+        backgroundImageUnstretchedCache = [image retain];
+        [theView release];
+    }
 	[button setBackgroundImage:backgroundImageUnstretchedCache forState:UIControlStateNormal];	
 }
 
@@ -131,13 +139,6 @@
 	}
 }
 
-- (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event
-{
-    UIGestureRecognizer *gestureRecognizer = [super gestureRecognizerForEvent:event];
-    [gestureRecognizer setDelaysTouchesEnded:NO];
-    return gestureRecognizer;
-}
-
 -(UIButton*)button
 {
 	if (button==nil)
@@ -156,7 +157,29 @@
 		[button addTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
 		button.exclusiveTouch = YES;
 	}
+	if ((viewGroupWrapper != nil) && ([viewGroupWrapper	superview]!=button)) {
+		[viewGroupWrapper setFrame:[button bounds]];
+		[button addSubview:viewGroupWrapper];
+	}
 	return button;
+}
+
+-(UIView *) viewGroupWrapper
+{
+	if (viewGroupWrapper == nil) {
+		viewGroupWrapper = [[UIView alloc] initWithFrame:[self bounds]];
+		[viewGroupWrapper setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+	}
+	if (button != [viewGroupWrapper superview]) {
+		if (button != nil) {
+			[viewGroupWrapper setFrame:[button bounds]];
+			[button addSubview:viewGroupWrapper];
+		}
+		else {
+			[viewGroupWrapper removeFromSuperview];
+		}
+	}
+	return viewGroupWrapper;
 }
 
 #pragma mark Public APIs

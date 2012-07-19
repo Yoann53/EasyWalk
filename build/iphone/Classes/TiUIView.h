@@ -75,6 +75,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	UIPinchGestureRecognizer*		pinchRecognizer;
 	UISwipeGestureRecognizer*		leftSwipeRecognizer;
 	UISwipeGestureRecognizer*		rightSwipeRecognizer;
+	UISwipeGestureRecognizer*		upSwipeRecognizer;
+	UISwipeGestureRecognizer*		downSwipeRecognizer;
 	UILongPressGestureRecognizer*	longPressRecognizer;
 	
 	//Resizing handling
@@ -130,7 +132,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @property(nonatomic,readonly)	UILongPressGestureRecognizer*	longPressRecognizer;
 
 -(void)configureGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer;
--(UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event;
+- (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event;
 
 /**
  Returns CA layer for the background of the view.
@@ -231,6 +233,12 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(UIView *)gradientWrapperView;
 -(void)checkBounds;
 
+/**
+ Whether or not a view not normally picked up by the EasyWalk view hierarchy (such as wrapped iOS UIViews) was touched.
+ @return _YES_ if the view contains specialized content (such as a system view) which should register as a touch for this view, _NO_ otherwise.
+ */
+-(BOOL)touchedContentViewWithEvent:(UIEvent*)event;
+
 - (void)processTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
 - (void)processTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
 - (void)processTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
@@ -242,7 +250,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 #define USE_PROXY_FOR_METHOD(resultType,methodname,inputType)	\
 -(resultType)methodname:(inputType)value	\
 {	\
-	NSLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);	\
+	DeveloperLog(@"[DEBUG] Using view proxy via redirection instead of directly for %@.",self);	\
 	return [(TiViewProxy *)[self proxy] methodname:value];	\
 }
 

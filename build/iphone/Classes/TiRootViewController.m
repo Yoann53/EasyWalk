@@ -48,7 +48,7 @@
 @property (nonatomic,readwrite,assign)	UIInterfaceOrientation windowOrientation;
 
 -(TiOrientationFlags)getDefaultOrientations;
-
+@property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 
 @end
 
@@ -256,6 +256,8 @@
 }
 
 #pragma mark UIViewController methods
+
+@synthesize keyboardFocusedProxy;
 
 -(void)dismissKeyboard
 {
@@ -582,7 +584,13 @@
     return modalFlag;
 }
 -(void)refreshOrientationWithDuration:(NSTimeInterval) duration
-{	/*
+{
+    if (![[TiApp app] windowIsKeyWindow]) {
+        VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
+        return;
+    }
+
+	/*
 	 *	Apple gives us a wonderful method, attemptRotation... in iOS 5 below
 	 *	but sadly, it only updates the orientation if the UI can change that
 	 *	way. So we give it a shot, and if that's not enough, consult the
@@ -603,6 +611,27 @@
         return;
     }   
     
+    /*Find out if we are inside a modal view controller . 
+     *TODO : There is currently a ticket open TIMOB-8902 to expose the 
+     *navigation controller of the modal window so that windows can 
+     *be added to it, instead of adding it here. when that ticket is resolved.
+     *this entire logic should be removed.
+     */
+    
+    BOOL isInsideModalWindow = NO;
+    for (TiWindowProxy * thisWindow in [windowProxies reverseObjectEnumerator])
+	{
+        if ([thisWindow closing] == NO) {
+            if([thisWindow modalFlagValue] == YES){
+                isInsideModalWindow = YES;
+                DebugLog(@"[WARN] Trying to open a new window from within a Modal Window is unsupported.");
+                break;
+            }
+            
+        }
+    }
+    
+
     if ((newOrientation == windowOrientation) &&
         (oldFlags & allowedOrientations))
     {
@@ -612,7 +641,7 @@
             [[UIApplication sharedApplication] setStatusBarOrientation:windowOrientation animated:NO];
         }
                 
-        if (TI_ORIENTATION_ALLOWED(allowedOrientations, orientationHistory[0])) {
+        if (TI_ORIENTATION_ALLOWED(allowedOrientations, orientationHistory[0]) && (isInsideModalWindow == NO)) {
              //Nothing to do here.
             return;
         }
@@ -632,20 +661,42 @@
 // Some controllers (like MPVideoPlayerController) manually hide/show the bar
 // based on whether or not they enter a "fullscreen" mode, and upon exiting,
 // the root view size needs to be adjusted based on any status bar differences.
--(CGRect)resizeViewForStatusBarHidden:(BOOL)statusBarHidden
+-(CGRect)resizeViewForStatusBarHidden
 {
-    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
-    BOOL currentlyHiding = [[UIApplication sharedApplication] isStatusBarHidden];
-    if (statusBarHidden != currentlyHiding) {
-        // Modify the app frame before setting it manually
-        if (currentlyHiding) { // Bar was previously visible
-            appFrame.size.width -= TI_STATUSBAR_HEIGHT;
-        }
-        else { // Bar was previously invisible
-            appFrame.size.width += TI_STATUSBAR_HEIGHT;
-        }
+    CGRect screenBounds = [[UIScreen mainScreen] bounds];
+    CGPoint appCenter = CGPointMake(screenBounds.size.width/2.0f, screenBounds.size.height/2.0f);
+    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+    if (CGRectIsEmpty(statusBarFrame)) {
+        [[self view] setBounds:screenBounds];
+        [[self view] setCenter:appCenter];
     }
-    [[self view] setFrame:appFrame];    
+    else {
+        CGRect appBounds = CGRectZero;
+        switch ([[UIApplication sharedApplication] statusBarOrientation]) {
+            case UIInterfaceOrientationPortrait:
+                appCenter.y = appCenter.y + TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.width = screenBounds.size.width;
+                appBounds.size.height = screenBounds.size.height - TI_STATUSBAR_HEIGHT;
+                break;
+            case UIInterfaceOrientationPortraitUpsideDown:
+                appCenter.y = appCenter.y - TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.width = screenBounds.size.width;
+                appBounds.size.height = screenBounds.size.height - TI_STATUSBAR_HEIGHT;
+                break;
+            case UIInterfaceOrientationLandscapeLeft:
+                appCenter.x = appCenter.x + TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.height = screenBounds.size.width - TI_STATUSBAR_HEIGHT;
+                appBounds.size.width = screenBounds.size.height;
+                break;
+            case UIInterfaceOrientationLandscapeRight:
+                appCenter.x = appCenter.x - TI_STATUSBAR_HEIGHT/2;
+                appBounds.size.height = screenBounds.size.width - TI_STATUSBAR_HEIGHT;
+                appBounds.size.width = screenBounds.size.height;
+                break;
+        }
+        [[self view] setBounds:appBounds];
+        [[self view] setCenter:appCenter];
+    }
     return [[self view] bounds];
 }
 
@@ -1007,6 +1058,7 @@
     if(focusedToolbar != nil){
         keyboardHeight -= focusedToolbarBounds.size.height;
     }
+    
 	if ((scrolledView != nil) && (keyboardHeight > 0))	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
 	{
 		UIView * possibleScrollView = [scrolledView superview];
@@ -1027,12 +1079,12 @@
 			}
 			possibleScrollView = [possibleScrollView superview];
 		}
-
-		[(UIView<TiScrolling> *)[confirmedScrollViews objectAtIndex:0] keyboardDidShowAtHeight:keyboardHeight];
-		for (UIView<TiScrolling> * confirmedScrollView in confirmedScrollViews)
-		{
-			[confirmedScrollView scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
-		}
+        
+        UIView<TiScrolling> *confirmedScrollViewsLastObject = (UIView<TiScrolling> *)[confirmedScrollViews objectAtIndex:0];
+        
+        [confirmedScrollViewsLastObject keyboardDidShowAtHeight:keyboardHeight];
+        [confirmedScrollViewsLastObject scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
+		
 	}
 
 	//This is if the keyboard is hiding or showing due to hardware.
@@ -1100,12 +1152,13 @@
 	leaveDuration = [[userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
 	[self extractKeyboardInfo:userInfo];
 	keyboardVisible = NO;
-
+    
 	if(!updatingAccessoryView)
 	{
 		updatingAccessoryView = YES;
 		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
 	}
+    
 }
 
 - (void)keyboardWillShow:(NSNotification*)notification 
@@ -1123,14 +1176,27 @@
 	}
 }
 
+- (void)adjustKeyboardHeight:(NSNumber*)_keyboardVisible
+{
+    if ( (updatingAccessoryView == NO) && ([TiUtils boolValue:_keyboardVisible] == keyboardVisible) ) {
+        updatingAccessoryView = YES;
+        [self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+    }
+}
+
 - (void)keyboardDidHide:(NSNotification*)notification 
 {
 	startFrame = endFrame;
+    [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:NO] afterDelay:leaveDuration];
 }
 
 - (void)keyboardDidShow:(NSNotification*)notification
 {
 	startFrame = endFrame;
+    //The endingFrame is not always correctly calculated when rotating.
+    //This method call ensures correct calculation at the end
+    //See TIMOB-8720 for a test case
+    [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:YES] afterDelay:enterDuration];
 }
 
 - (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView
@@ -1163,13 +1229,13 @@
 -(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ
+    
 	if (blurredProxy != keyboardFocusedProxy)
 	{
-		NSLog(@"[WARN] Blurred for %@<%X>, despite %@<%X> being the focus.",blurredProxy,blurredProxy,keyboardFocusedProxy,keyboardFocusedProxy);
+		DeveloperLog(@"[WARN] Blurred for %@<%X>, despite %@<%X> being the focus.",blurredProxy,blurredProxy,keyboardFocusedProxy,keyboardFocusedProxy);
 		return;
 	}
-	RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
-
+	
 	//Question: Ideally (IE, shouldn't happen differently) the keyboardToolbar of the focusedProxy IS the accessoryView. Should we assume this?
 	//TODO: This can probably be optimized, but since how rarely this happens....
 	
@@ -1178,7 +1244,7 @@
 
 	if(doomedView != accessoryView)
 	{
-		NSLog(@"[WARN] Trying to blur out %@, but %@ is the one with focus.",doomedView,accessoryView);
+		DeveloperLog(@"[WARN] Trying to blur out %@, but %@ is the one with focus.",doomedView,accessoryView);
 		return;
 	}
 
@@ -1201,7 +1267,7 @@
             [confirmedScrollView keyboardDidShowAtHeight:keyboardHeight];
         }
 	}
-
+    RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
 	if((doomedView == nil) || (leavingAccessoryView == doomedView)){
 		//Nothing to worry about. No toolbar or it's on its way out.
 		return;
@@ -1209,7 +1275,7 @@
 	
 	if(leavingAccessoryView != nil)
 	{
-		NSLog(@"[WARN] Trying to blur out %@, but %@ is already leaving focus.",accessoryView,leavingAccessoryView);
+		DeveloperLog(@"[WARN] Trying to blur out %@, but %@ is already leaving focus.",accessoryView,leavingAccessoryView);
         [leavingAccessoryView removeFromSuperview];
 		RELEASE_TO_NIL_AUTORELEASE(leavingAccessoryView);
 	}
@@ -1228,14 +1294,15 @@
 -(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ
+    
 	if (visibleProxy == keyboardFocusedProxy)
 	{
-		NSLog(@"[WARN] Focused for %@<%X>, despite it already being the focus.",keyboardFocusedProxy,keyboardFocusedProxy);
+		DeveloperLog(@"[WARN] Focused for %@<%X>, despite it already being the focus.",keyboardFocusedProxy,keyboardFocusedProxy);
 		return;
 	}
 	if (nil != keyboardFocusedProxy)
 	{
-		NSLog(@"[WARN] Focused for %@<%X>, despite %@<%X> already being the focus.",visibleProxy,visibleProxy,keyboardFocusedProxy,keyboardFocusedProxy);
+		DeveloperLog(@"[WARN] Focused for %@<%X>, despite %@<%X> already being the focus.",visibleProxy,visibleProxy,keyboardFocusedProxy,keyboardFocusedProxy);
 		[self didKeyboardBlurOnProxy:keyboardFocusedProxy];
 	}
 	
@@ -1254,7 +1321,7 @@
 	{
 		if(enteringAccessoryView != nil)
 		{
-			NSLog(@"[WARN] Moving in view %@, despite %@ already in line to move in.",newView,enteringAccessoryView);
+			DebugLog(@"[WARN] Moving in view %@, despite %@ already in line to move in.",newView,enteringAccessoryView);
 			[enteringAccessoryView release];
 		}
 		

@@ -1,0 +1,1 @@
+/Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/app.js

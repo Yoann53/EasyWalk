@@ -20,11 +20,11 @@ const TiDimension TiDimensionUndefined = {TiDimensionTypeUndefined, 0};
 TiDimension TiDimensionMake(TiDimensionType type, CGFloat value)
 {
 	if ((value!=0)&&(!isnormal(value))) {
-		NSLog(@"[FATAL] Invalid dimension value (%f) requested. Making the dimension undefined instead.",value);
+		DebugLog(@"[WARN] Invalid dimension value (%f) requested. Making the dimension undefined instead.",value);
 		return TiDimensionUndefined;
 	}
 	if (!((value > -1e5)&&(value < 1e5))) {
-		NSLog(@"[FATAL] Extreme dimension value (%f) requested. Allowing, just in case this is intended.",value);
+		DebugLog(@"[WARN] Extreme dimension value (%f) requested. Allowing, just in case this is intended.",value);
 	}
 	TiDimension dimension;
 	dimension.type = type;
@@ -40,7 +40,7 @@ CGFloat convertInchToPixels(CGFloat value)
 CGFloat convertPixelsToDip(CGFloat value)
 {
     if ([TiUtils isRetinaDisplay]) {
-        return value/2;
+        return value/2.0;
     }
     return value;
 }
@@ -48,10 +48,17 @@ CGFloat convertPixelsToDip(CGFloat value)
 CGFloat convertDipToInch(CGFloat value)
 {
     if ([TiUtils isRetinaDisplay]) {
-        return (value*2)/[TiUtils dpi];
+        return (value*2.0)/[TiUtils dpi];
     }
     return value/[TiUtils dpi];
 }
 
+CGFloat convertDipToPixels(CGFloat value)
+{
+    if ([TiUtils isRetinaDisplay]) {
+        return (value * 2.0);
+    }
+    return value;
+}
 
 

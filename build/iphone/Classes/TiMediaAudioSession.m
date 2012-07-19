@@ -124,7 +124,7 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 
 - (void)dealloc {
     if ([self isActive]) {
-        NSLog(@"[WARN] AudioSession being deallocated is still active");
+        DeveloperLog(@"[WARN] AudioSession being deallocated is still active");
         [self deactivateSession];
     }
     RELEASE_TO_NIL(lock);
@@ -278,7 +278,7 @@ void TiAudioSessionInputAvailableCallback(void* inUserData, AudioSessionProperty
 -(void)setSessionMode:(UInt32)mode
 {
 	if ([self isActive]) {
-		NSLog(@"[WARN] Setting audio mode while playing audio... changes will not take effect until audio is restarted.");
+		DebugLog(@"[WARN] Setting audio mode while playing audio... changes will not take effect until audio is restarted.");
 	}
 	AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(mode), &mode);
 }

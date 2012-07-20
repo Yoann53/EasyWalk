@@ -6,7 +6,7 @@ function ApplicationWindow() {
 	//create component instance
 	var self = Ti.UI.createWindow({
 		backgroundColor:'#ffffff'
-	});
+	});	
 		
 	//construct UI
 	var view_first = new mod_view_first(self);

@@ -3,10 +3,12 @@
  */
 
 exports.getView = function(){
-
+	
+	var isAndroid = (Ti.Platform.osname == 'android') ? true : false;
+	
 	var view_login = Ti.UI.createView({
 		title: 'Authentification',
-		backgroundImage: '../../images/bkgCenterLight.png'
+		backgroundImage : (isAndroid) ? '../../images/bkgCenterLight.png' : 'images/bkgCenterLight.png'	
 	});
 	
 	var txt_login = Titanium.UI.createTextField({

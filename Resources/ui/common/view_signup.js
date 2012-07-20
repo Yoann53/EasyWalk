@@ -1,13 +1,16 @@
 /**
  * @author Yoann GAUCHARD
  */
+
 exports.getView = function(){
+	
+	var isAndroid = (Ti.Platform.osname == 'android') ? true : false;
 	
 	var view_signup = Ti.UI.createView({
 		title: 'Inscription',
-		backgroundImage: '../../images/bkgCenterLight.png'
+		backgroundImage : (isAndroid) ? '../../images/bkgCenterLight.png' : 'images/bkgCenterLight.png'	
 	});
-	
+
 	var txt_login = Titanium.UI.createTextField({
 		color:'#336699',
 		top:20,
@@ -58,17 +61,17 @@ exports.getView = function(){
 	});
 	
 	var btn_send = Ti.UI.createButton({
-			height:44,
-			width:200,
-			title:'Valider',
-			top:280
+		height:44,
+		width:200,
+		title:'Valider',
+		top:280
 	});
 	
 	//global variable
 	var ent_user;
-	
+	/*
 	btn_send.addEventListener('click', function(){
-	
+		
 		try{
 	
 			//Handle all textfield values
@@ -78,34 +81,38 @@ exports.getView = function(){
 				password2 : txt_confirm_password.value,
 				username : txt_username.value
 			}
-	
+			
 			//Invoke profile services
-			var svc_profile = require('../../services/business_services/profile');
-	
+			if(!isAndroid){
+				var svc_profile = require('../../services/business_services/profile');
+			}else{
+				var svc_profile = require('services/business_services/profile');
+			}
+			
 			//Call signup service to register the current user on webserver
-			var result  = svc_profile.signup(obj_params);	
-	
-	
+			//var result  = svc_profile.signup(obj_params);
+			
+			
 			if(typeof(result) == 'string') alert(result);
 			else if(typeof(result) == 'object') {
 				ent_user = result;
-	
+				
 				var win_start = Titanium.UI.createWindow({  
 			    	title:'Bienvenue sur EasyWalk',
 			    	backgroundColor:'#336699',
-			    	url:'../start.js'  
+			    	//url:'../start.js'  
 				});
-	
+				
 				Ti.UI.currentTab.open(win_start);
 			}//end else
 			
+			
 		} catch(e) {
-	
 			Ti.API.info('[DEV] SignUp ui EventListener failed : ' + e);
-	
 		}
+		
 	});
-	
+	*/
 	view_signup.add(txt_login);
 	view_signup.add(txt_password);
 	view_signup.add(txt_confirm_password);

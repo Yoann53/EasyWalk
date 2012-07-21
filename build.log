@@ -9,13 +9,14 @@ Logfile initialized
 [TRACE] adb devices returned 1 devices/emulators
 [TRACE] adb devices returned 1 devices/emulators
 [DEBUG] Device connected... (waited 15 seconds)
-[DEBUG] waited 15.138954 seconds on emulator to get ready
+[DEBUG] waited 15.156620 seconds on emulator to get ready
 [INFO] Waiting for the Android Emulator to become available
 [DEBUG] com.TeamEasyWalk.EasyWalk installed? True
 [INFO] Fastdev server running, deploying in Fastdev mode
 [INFO] Copying CommonJS modules...
 [INFO] Copying project resources..
-[TRACE] COPYING MODIFIED FILE: /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/ui/common/view_first.js => /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/bin/assets/Resources/ui/common/view_first.js
+[TRACE] COPYING MODIFIED FILE: /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/services/business_services/profile.js => /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/bin/assets/Resources/services/business_services/profile.js
+[TRACE] COPYING MODIFIED FILE: /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/ui/common/view_signup.js => /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/bin/assets/Resources/ui/common/view_signup.js
 [INFO] Tiapp.xml unchanged, skipping class generation
 [DEBUG] Processing Android resource drawables
 [DEBUG] found drawable-long-land-hdpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-long-land-hdpi/default.png

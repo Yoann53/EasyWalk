@@ -86,10 +86,10 @@ exports.getView = function(){
 			
 			//Call signup service to register the current user on webserver
 			var result  = svc_profile.signup(obj_params);
-			//alert(result);
 			
-			if(typeof(result) == 'string') alert(result);
-			else if(typeof(result) == 'object') {
+			if(typeof(result) == 'string'){
+				alert(result);
+			} else if(typeof(result) == 'object') {
 				ent_user = result;
 				Ti.API.info('object is returned');
 				var win_start = Titanium.UI.createWindow({  
@@ -98,12 +98,14 @@ exports.getView = function(){
 			    	//url:'../start.js'  
 				});
 				//Ti.UI.currentTab.open(win_start);
-			}//end else
-			
+			} else {
+				alert('erreur d\'authentification');
+			}
 			
 		} catch(e) {
 			Ti.API.info('[DEV] SignUp ui EventListener failed : ' + e);
 		}
+		
 		
 	});
 	

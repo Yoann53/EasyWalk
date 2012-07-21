@@ -7,6 +7,8 @@
 
 //Signup Service
 
+var isAndroid = (Ti.Platform.osname == 'android') ? true : false;
+
 exports.signup = function(obj_userArgs){
 
 	// 1 - Check if all fields aren't empty
@@ -16,8 +18,6 @@ exports.signup = function(obj_userArgs){
 	// 5 - Save user on web server
 	// 6 - Create one cookie on mobile
 	// 7 - Instanciate current user in global scope 
-
-	var isAndroid = (Ti.Platform.osname == 'android') ? true : false;
 	
 	try{
 
@@ -46,19 +46,18 @@ exports.signup = function(obj_userArgs){
 
 		//Call "isExist" service to check if current user already exists
 		var isExist = svc_web.isExist(obj_userArgs.login);
-
 		if(isExist) return 'Login déjà utilisé !';			
 
 
 
 		//** 4 - Save user on web server **//
-/*
+
 		if(obj_userArgs.password1 != obj_userArgs.password2) return 'Mots de passe différents !';	 		
 
 
-*/
+
 		//** 5 - Save user on web server **//
-/*
+
 		//Call postUserInfo service to register the current user on webserver
 		var success = svc_web.postUserInfo(obj_userArgs);
 
@@ -66,9 +65,8 @@ exports.signup = function(obj_userArgs){
 		else {
 
 
-*/
 			//** 6 - Create one cookie on mobile **//
-/*
+
 			var obj_userParams = {
 				login : obj_userArgs.login,
 				password : Ti.Utils.md5HexDigest(obj_userArgs.password1),
@@ -82,9 +80,8 @@ exports.signup = function(obj_userArgs){
 			svc_file.writeUserCookie(obj_userParams);		
 
 
-*/
 			//** 7 - Instanciate current user in global scope  **//
-/*
+
 			//Invoke user entity
 			var User = (isAndroid) ? require('../../business_entities/user') : require('business_entities/user');  
 
@@ -92,10 +89,9 @@ exports.signup = function(obj_userArgs){
 			obj_user.setLogin(obj_userArgs.login);
 			obj_user.setPassword(obj_userArgs.password1);
 			obj_user.setUsername(obj_userArgs.username);
-
 			return obj_user;
 		}//end else
-*/
+
 	} catch(e) {
 
 		Ti.API.info('[DEV] SignUp profile service failed : ' + e);
@@ -105,7 +101,7 @@ exports.signup = function(obj_userArgs){
 
 
 //Login Service
-/*
+
 exports.login = function(obj_userArgs){
 
 	try{
@@ -114,14 +110,17 @@ exports.login = function(obj_userArgs){
 
 		//Call "login" service to log user on app
 		var success = svc_web.login(obj_userArgs);
-		if(!success) return "Authentification incorrecte !";
-		else {
+		if(!success){
+			
+			return "Authentification incorrecte !";
+			
+		} else {
 
 			//Call "etuserInfo" service to get user infos
 			var obj_userInfo = svc_web.getUserInfo(obj_userArgs.login);
-*/
+
 			//** 1 - Create one cookie on mobile **//
-/*
+
 			var obj_userParams = {
 				login : obj_userInfo.login,
 				password : obj_userInfo.password,
@@ -129,15 +128,15 @@ exports.login = function(obj_userArgs){
 			}
 
 			//Invoke file services
-			var svc_file = require('services/resources_services/file');
+			var svc_file = (isAndroid) ? require('../resources_services/file') : require('services/resources_services/file');
 
 			//Call "writeUserCookie" service to log the user
 			svc_file.writeUserCookie(obj_userParams);			
-*/
+
 			//** 2 - Instanciate current user in global scope  **//
-/*
+
 			//Invoke user entity
-			var User = require('business_entities/user');  
+			var User = (isAndroid) ? require('../../business_entities/user') : require('business_entities/user');  
 
 			var obj_user = new User();
 			obj_user.setLogin(obj_userInfo.login);
@@ -153,4 +152,3 @@ exports.login = function(obj_userArgs){
 
 	}
 }
-*/

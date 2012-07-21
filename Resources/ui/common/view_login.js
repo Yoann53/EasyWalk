@@ -43,7 +43,7 @@ exports.getView = function(){
 	});
 	
 	var ent_user;
-	/*
+	
 	btn_login.addEventListener('click', function(){
 	
 		try{
@@ -55,31 +55,39 @@ exports.getView = function(){
 			}
 	
 			//Invoke profile services
-			var svc_profile = require('services/business_services/profile');
+			var svc_profile = (isAndroid) ? require('../../services/business_services/profile') : require('services/business_services/profile');
 	
 			//Call signup service to register the current user on webserver
 			var result = svc_profile.login(obj_params);	
 	
-			if(typeof(result) == 'string') alert(result);
-			else if(typeof(result) == 'object') {
+			if(typeof(result) == 'string'){
+				
+				alert(result);
+				
+			} else if(typeof(result) == 'object') {
 				ent_user = result;
 	
 				var win_start = Titanium.UI.createWindow({  
 			    	title:'Bienvenue sur EasyWalk',
 			    	backgroundColor:'#336699',
-			    	url:'../start.js'  
+			    	//url:'../start.js'  
 				});
 	
-				Ti.UI.currentTab.open(win_start);
-			}//end else
+				//Ti.UI.currentTab.open(win_start);
+			
+			} else {
+				
+				alert('erreur d\'authentification');
+				
+			}
 	
 		} catch(e) {
 	
-			Ti.API.info('[DEV] SignUp ui EventListener failed : ' + e);
+			Ti.API.info('[DEV] Login ui EventListener failed : ' + e);
 	
 		}
 	});
-	*/
+	
 	view_login.add(txt_login);
 	view_login.add(txt_password);
 	view_login.add(btn_login);

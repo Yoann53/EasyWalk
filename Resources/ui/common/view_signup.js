@@ -99,13 +99,12 @@ exports.getView = function(){
 				});
 				//Ti.UI.currentTab.open(win_start);
 			} else {
-				alert('erreur d\'authentification');
+				alert('erreur d\'inscription');
 			}
 			
 		} catch(e) {
 			Ti.API.info('[DEV] SignUp ui EventListener failed : ' + e);
 		}
-		
 		
 	});
 	

@@ -69,11 +69,10 @@ exports.getView = function(){
 	
 	//global variable
 	var ent_user;
-	/*
+	
 	btn_send.addEventListener('click', function(){
 		
 		try{
-	
 			//Handle all textfield values
 			var obj_params = {
 				login : txt_login.value,
@@ -83,27 +82,22 @@ exports.getView = function(){
 			}
 			
 			//Invoke profile services
-			if(!isAndroid){
-				var svc_profile = require('../../services/business_services/profile');
-			}else{
-				var svc_profile = require('services/business_services/profile');
-			}
+			var svc_profile = (isAndroid) ? require('../../services/business_services/profile') : require('services/business_services/profile');
 			
 			//Call signup service to register the current user on webserver
-			//var result  = svc_profile.signup(obj_params);
-			
+			var result  = svc_profile.signup(obj_params);
+			//alert(result);
 			
 			if(typeof(result) == 'string') alert(result);
 			else if(typeof(result) == 'object') {
 				ent_user = result;
-				
+				Ti.API.info('object is returned');
 				var win_start = Titanium.UI.createWindow({  
 			    	title:'Bienvenue sur EasyWalk',
 			    	backgroundColor:'#336699',
 			    	//url:'../start.js'  
 				});
-				
-				Ti.UI.currentTab.open(win_start);
+				//Ti.UI.currentTab.open(win_start);
 			}//end else
 			
 			
@@ -112,7 +106,7 @@ exports.getView = function(){
 		}
 		
 	});
-	*/
+	
 	view_signup.add(txt_login);
 	view_signup.add(txt_password);
 	view_signup.add(txt_confirm_password);

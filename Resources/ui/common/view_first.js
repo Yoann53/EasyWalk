@@ -22,8 +22,7 @@ function FirstView(win_main) {
 		top:150
 	});
 	
-	// Don't forget to set your appid and requested permissions, else the login button
-	// won't be effective.
+	// create Facebook configuration and login button
 	Ti.Facebook.appid = '399921883389237';
 	Ti.Facebook.permissions = ['publish_stream', 'read_stream', 'user_photos', 'friends_photos'];
 	var btn_facebookLogin = Ti.Facebook.createLoginButton({
@@ -69,6 +68,7 @@ function FirstView(win_main) {
 				top:350
 			});
 			
+			//Android back button function
 			btn_back.addEventListener('click',function()
 			{
 				win_main.animate({view:view_first,transition:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT});
@@ -137,7 +137,7 @@ function FirstView(win_main) {
 	});
 	
 	Ti.App.addEventListener('logged', function(){
-			
+		
 	});
 	
 	Ti.App.addEventListener('error_login', function(){

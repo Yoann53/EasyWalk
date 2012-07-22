@@ -43,7 +43,7 @@ exports.signup = function(obj_userArgs){
 
     	//Invoke web services
 		var svc_web = (isAndroid) ? require('../resources_services/web') : require('services/resources_services/web');
-		alert('ok');//-------------------------------------------------------------------------------------------------------
+
 		//Call "isExist" service to check if current user already exists
 		var isExist = svc_web.isExist(obj_userArgs.login);
 		if(isExist) return 'Login déjà utilisé !';			
@@ -114,7 +114,7 @@ exports.login = function(obj_userArgs){
 		if(!success){
 
 			return "Authentification incorrecte !";
-
+			
 		} else {
 
 			//Call "etuserInfo" service to get user infos
@@ -153,3 +153,4 @@ exports.login = function(obj_userArgs){
 
 	}
 }
+

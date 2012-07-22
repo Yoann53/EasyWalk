@@ -33,12 +33,7 @@ if (Ti.version < 1.8 ) {
 	else {
 		// Android uses platform-specific properties to create windows.
 		// All other platforms follow a similar UI pattern.
-		if (osname === 'android') {
-			Window = require('ui/handheld/android/ApplicationWindow');
-		}
-		else {
 			Window = require('ui/handheld/ApplicationWindow');
-		}
 	}
 	new Window().open();
 })();

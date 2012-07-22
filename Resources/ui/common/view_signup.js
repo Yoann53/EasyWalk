@@ -91,20 +91,21 @@ exports.getView = function(){
 				alert(result);
 			} else if(typeof(result) == 'object') {
 				ent_user = result;
-				
-				alert('signup ok');
+
 				/*
+
 				var win_start = Titanium.UI.createWindow({  
 			    	title:'Bienvenue sur EasyWalk',
 			    	backgroundColor:'#336699',
 			    	//url:'../start.js'  
 				});
+
 				*/
 				//Ti.UI.currentTab.open(win_start);
 			} else {
 				alert('erreur d\'inscription');
 			}
-
+			
 		} catch(e) {
 			Ti.API.info('[DEV] SignUp ui EventListener failed : ' + e);
 		}

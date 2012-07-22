@@ -58,7 +58,7 @@ function FirstView(win_main) {
 			var view_signup = mod_ui_signup.getView();
 			//view_signup.hide();
 			//win_main.add(view_signup);
-
+			
 			// create close button for our window
 			var btn_back = Ti.UI.createButton(
 			{
@@ -126,39 +126,18 @@ function FirstView(win_main) {
 
 	Ti.Facebook.addEventListener('login', function(e) {
 	    if (e.success) {
-	    	alert('logged');
-	    	Ti.App.fireEvent('logged');
+	    	
+	    	var tabgroup = (isAndroid) ? require('../common/ApplicationTagGroup') : require('ui/common/ApplicationTagGroup');
+			tabgroup.open();    	
 	    }else{
 	    	Ti.App.fireEvent('error_login');
 	    }
 	});
+	
 
 	Ti.App.addEventListener('error_login', function(){
 		alert("erreur d'authentification!");
-
 	});
-
-	/*
-	//Add behavior for UI
-	label.addEventListener('click', function(e) {
-		var osname = Ti.Platform.osname,
-		version = Ti.Platform.version,
-		height = Ti.Platform.displayCaps.platformHeight,
-		width = Ti.Platform.displayCaps.platformWidth;
-		
-		var isTablet = osname === 'ipad' || (osname === 'android' && (width > 899 || height > 899));
-		var Window;
-		if (isTablet) {
-			Window = require('ui/tablet/ApplicationWindow');
-		}
-		else {
-			Window = require('ui/handheld/ApplicationWindow');
-		}
-	
-		var ApplicationTabGroup = require('ui/common/ApplicationTabGroup');
-		new ApplicationTabGroup(Window).open();
-	});
-	*/
 
 	view_first.add(btn_signup);
 	view_first.add(btn_login);

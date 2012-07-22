@@ -1,30 +1,25 @@
-function ApplicationTabGroup(Window) {
-	//create module instance
-	var self = Ti.UI.createTabGroup();
+exports.ApplicationTabGroup = function() {
+	var tabGroup = Titanium.UI.createTabGroup();
 
-	//create app tabs
-	var win1 = new Window(L('home')),
-		win2 = new Window(L('settings'));
+	Titanium.UI.setBackgroundColor('#fff');  
+	var tabGroup = Titanium.UI.createTabGroup();  
 
-	var tab1 = Ti.UI.createTab({
-		title: 'home',
-		icon: '/images/KS_nav_ui.png',
-		window: win1
+	//First start 
+	var win_race = Titanium.UI.createWindow({  
+    	title:'Bienvenue sur EasyWalk',
+    	backgroundColor:'#336699',
+    	url:'ui/win_race/welcome.js'  
 	});
-	win1.containingTab = tab1;
+			
+	
+	var tab_race = Titanium.UI.createTab({  
+	    title:"Welcome",  
+	    window:win_race  
+	});    
 
-	var tab2 = Ti.UI.createTab({
-		title: 'settings',
-		icon: '/images/KS_nav_views.png',
-		window: win2
-	});
-	win2.containingTab = tab2;
-
-	self.addTab(tab1);
-	self.addTab(tab2);
-
-	return self;
+	//Hide TabBar
+	//win_welcome.hideTabBar();  
+	tabGroup.addTab(tab_race);    
+	tabGroup.open();
 };
-
-module.exports = ApplicationTabGroup;
 

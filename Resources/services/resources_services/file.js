@@ -9,8 +9,12 @@
 exports.isCookieExist = function(str_filename) {
 
 	var file_userCookie = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,'userCookie.txt');
-	if(file_userCookie.exists()) return true;
-	else return false;
+
+	if(file_userCookie.exists()){
+		return true;
+	} else {
+		return false;
+	} 
 };
 
 

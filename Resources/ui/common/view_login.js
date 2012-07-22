@@ -57,6 +57,7 @@ exports.getView = function(){
 			//Invoke profile services
 			var svc_profile = (isAndroid) ? require('../../services/business_services/profile') : require('services/business_services/profile');
 
+
 			//Call signup service to register the current user on webserver
 			var result = svc_profile.login(obj_params);	
 

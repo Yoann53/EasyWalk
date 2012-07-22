@@ -35,5 +35,8 @@ if (Ti.version < 1.8 ) {
 		// All other platforms follow a similar UI pattern.
 			Window = require('ui/handheld/ApplicationWindow');
 	}
+	
 	new Window().open();
+	
+	
 })();

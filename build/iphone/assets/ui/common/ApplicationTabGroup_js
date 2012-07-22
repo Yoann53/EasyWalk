@@ -1,0 +1,25 @@
+exports.ApplicationTabGroup = function() {
+	var tabGroup = Ti.UI.createTabGroup();
+
+	Ti.UI.setBackgroundColor('#fff');  
+	var tabGroup = Ti.UI.createTabGroup();  
+
+	//First start 
+	var win_race = Ti.UI.createWindow({  
+    	title:'Bienvenue sur EasyWalk',
+    	backgroundColor:'#336699',
+    	url:'ui/common/win_race.js'  
+	});
+			
+	
+	var tab_race = Ti.UI.createTab({  
+	    title:"Welcome",  
+	    window:win_race  
+	});    
+
+	//Hide TabBar
+	//win_welcome.hideTabBar();  
+	tabGroup.addTab(tab_race);  
+	tabGroup.open();
+};
+

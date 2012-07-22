@@ -11,21 +11,21 @@
  */
 
 function Geo() {
-
+	
 	this.LATITUDE_BASE = 38.500000;
 	this.LONGITUDE_BASE = -121.050210;
 	this.annos = []; //map's annotations
 	this.isTrackStarted = false;
-	this.arr_GPXpos = this.getGPXtrace();
+	//this.arr_GPXpos = this.getGPXtrace();
 	this.anno_current = Ti.Map.createAnnotation({
 		titleid : 0,
 		animate : true,
 		pincolor : Titanium.Map.ANNOTATION_GREEN,
 		title : 'Vous êtes ici !',
-		latitude : this.arr_GPXpos[0].latitude, 
-		longitude : this.arr_GPXpos[0].longitude
+		latitude : 38.500000, 
+		longitude : -121.050210
 	});
-	this.isAndroid = (Ti.Platform.osname == 'android') ? true : false;
+	
 }
 
 
@@ -39,7 +39,9 @@ Geo.prototype.monitorGPSPosition = function(){
 		var locationAdded = false;
 		var handleLocation = function(e) {
 		    if (!e.error) {
-		        Ti.API.info(e.coords);
+		        Ti.App.fireEvent('evtLocationUpdate',e.coords);
+		    }else{
+		    	alert('Error: ' + e.error);
 		    }
 		};
 		var addHandler = function() {
@@ -57,6 +59,16 @@ Geo.prototype.monitorGPSPosition = function(){
 		
 		Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_BEST;
 		Ti.Geolocation.preferredProvider = Ti.Geolocation.PROVIDER_GPS;
+		Titanium.Geolocation.distanceFilter = 0;
+		Titanium.Geolocation.frequency = 1;
+		/*
+		gpsProvider = Ti.Geolocation.Android.createLocationProvider({
+		    name: Ti.Geolocation.PROVIDER_GPS,
+		    minUpdateTime: 10, 
+		    minUpdateDistance: 10
+		});
+		Ti.Geolocation.Android.addLocationProvider(gpsProvider);
+		*/
 		if (Ti.Geolocation.locationServicesEnabled) {
 		    addHandler();
 			
@@ -64,6 +76,7 @@ Geo.prototype.monitorGPSPosition = function(){
 		    activity.addEventListener('destroy', removeHandler);
 		    activity.addEventListener('pause', removeHandler);
 		    activity.addEventListener('resume', addHandler);
+		    
 		} else {
 		    alert('Activez le service gps.');
 		}
@@ -77,7 +90,6 @@ Geo.prototype.monitorGPSPosition = function(){
 		        if (e.error) {
 		            alert('Error: ' + e.error);
 		        } else {
-		        	this.anno_current;
 		        	Ti.App.fireEvent('evtLocationUpdate',e.coords);
 		            Ti.API.info(e.coords);
 		        }
@@ -86,7 +98,6 @@ Geo.prototype.monitorGPSPosition = function(){
 		    alert('Activez le service gps.');
 		}
 	}
-	
 };
 
 
@@ -99,7 +110,7 @@ Geo.prototype.saveCurrentCoords = function(){
 
 };
 
-
+/*
 Geo.prototype.getGPXtrace = function() {
 
 	var svc_file = require('services/resources_services/file');
@@ -122,7 +133,7 @@ Geo.prototype.getGPXtrace = function() {
 	return tab_XMLpositions;
 };
 
-
+*/
 
 
 /*

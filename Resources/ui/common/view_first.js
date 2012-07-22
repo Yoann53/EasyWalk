@@ -127,8 +127,8 @@ function FirstView(win_main) {
 	Ti.Facebook.addEventListener('login', function(e) {
 	    if (e.success) {
 	    	
-	    	var tabgroup = (isAndroid) ? require('../common/ApplicationTagGroup') : require('ui/common/ApplicationTagGroup');
-			tabgroup.open();    	
+	    	var tabgroup = (isAndroid) ? require('../common/ApplicationTabGroup') : require('ui/common/ApplicationTabGroup');
+			tabgroup.ApplicationTabGroup();  	
 	    }else{
 	    	Ti.App.fireEvent('error_login');
 	    }

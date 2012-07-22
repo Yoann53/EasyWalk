@@ -8,7 +8,7 @@ exports.ApplicationTabGroup = function() {
 	var win_race = Titanium.UI.createWindow({  
     	title:'Bienvenue sur EasyWalk',
     	backgroundColor:'#336699',
-    	url:'ui/win_race/welcome.js'  
+    	url:'ui/common/win_race.js'  
 	});
 			
 	
@@ -19,7 +19,7 @@ exports.ApplicationTabGroup = function() {
 
 	//Hide TabBar
 	//win_welcome.hideTabBar();  
-	tabGroup.addTab(tab_race);    
+	tabGroup.addTab(tab_race);  
 	tabGroup.open();
 };
 

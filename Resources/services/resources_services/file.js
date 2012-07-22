@@ -34,9 +34,9 @@ exports.writeUserCookie = function(obj_userArgs){
 exports.readGPXfile = function(){
 
 	var file_gpx = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,'test.gpx');
-
+	Ti.API.info(Ti.Filesystem.applicationDataDirectory);
 	var xml_text = file_gpx.read().text;
-	//Ti.API.info(xml_text);
+	Ti.API.info(xml_text);
 	return xml_text;
 };
 

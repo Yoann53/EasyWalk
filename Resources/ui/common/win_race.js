@@ -7,7 +7,7 @@ var isAndroid = (Ti.Platform.osname == 'android') ? true : false;
 var win_race = Titanium.UI.currentWindow;
 
 // initialize to all modes
-win_start.orientationModes = [
+win_race.orientationModes = [
 	Titanium.UI.PORTRAIT,
 	Titanium.UI.LANDSCAPE_LEFT,
 	Titanium.UI.LANDSCAPE_RIGHT
@@ -15,16 +15,10 @@ win_start.orientationModes = [
 
 
 //Include all scrollable views
-
-if(isAndroid){
-	Ti.include('../common/view_scroll_one.js');
-}else{
-	Ti.include('ui/common/view_scroll_one.js');
-}
+Ti.include('../common/view_scroll_one.js');
 
 
-
-var tab_views = [view_main];
+var tab_views = [view_scroll_one];
 
 var scrollableview = Ti.UI.createScrollableView({
 	showPagingControl : true,

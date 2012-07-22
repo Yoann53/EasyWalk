@@ -27,7 +27,7 @@ function displayTimerCallback(obj_timer) {
 }
 
 function displayAlertCallback() {
-
+	
 }
 
 
@@ -35,11 +35,11 @@ function displayAlertCallback() {
  * UI elements
  */
 
-var view_main = Titanium.Map.createView({
+var view_scroll_one = Titanium.Map.createView({
     mapType: Titanium.Map.STANDARD_TYPE,
     region: {
-    	latitude : _geo.getArr_GPXpos()[0].latitude, 
-    	longitude : _geo.getArr_GPXpos()[0].longitude,
+    	latitude : 48.06159, 
+    	longitude : -0.81114,
         latitudeDelta : 0.1, 
         longitudeDelta : 0.1},
     animate : false,
@@ -168,6 +168,7 @@ var lab_avgspeed =  Ti.UI.createLabel({
 	textAlign:'center'
 });
 
+_geo.monitorGPSPosition();
 
 /*
  * Event Listeners
@@ -176,7 +177,7 @@ var lab_avgspeed =  Ti.UI.createLabel({
 btn_start.addEventListener('click', function(){
 
 	//Add top view
-	view_main.add(view_top);
+	view_scroll_one.add(view_top);
 
 	//ScrollDown animation
 	if(!scrolled) {
@@ -194,7 +195,7 @@ btn_start.addEventListener('click', function(){
 	this.setVisible(false);
 
 	//TEST
-	tracking();
+	//tracking();
 
 });
 
@@ -203,7 +204,7 @@ btn_pause.addEventListener('click', function(){
 
 	_timer.pause(displayTimerCallback);
 
-	btn_pause.setVisible(false);
+	this.setVisible(false);
 	btn_start.setVisible(true);
 
 });
@@ -258,17 +259,15 @@ btn_scroll.addEventListener('click', function(){
 
 Ti.App.addEventListener('evtLocationUpdate', function(obj_coords){
 
-	var tab_anno = view_main.getAnnotations();
-
-	Ti.API.info('Annotations de la map : \n'+tab_anno);
-	tab_anno[0].latitude = obj_coords.latitude;
-	tab_anno[0].longitude = obj_coords.longitude;
-	view_main.setAnnotations(tab_anno);
+	//Ti.API.info('Annotations de la map : \n'+tab_anno);
+	Ti.API.warn(obj_coords);
+	Ti.API.warn('latitude: '+obj_coords.latitude);
+	Ti.API.warn('longitude: '+obj_coords.longitude);
 
 	var anno_new = Ti.Map.createAnnotation({
 		titleid : _geo.getAnno_current().getTitleid() + 1,
 		animate : true,
-		pincolor : Titanium.Map.ANNOTATION_GREEN,
+		pincolor : Titanium.Map.ANNOTATION_RED,
 		title : 'Vous êtes ici !',
 		latitude : 	obj_coords.latitude,
 		longitude : obj_coords.longitude
@@ -276,7 +275,8 @@ Ti.App.addEventListener('evtLocationUpdate', function(obj_coords){
 
 	_geo.setAnno_current(anno_new);
 
-	view_main.addAnnotation(_geo.getAnno_current());
+	view_scroll_one.addAnnotation(_geo.getAnno_current());
+	
 });
 
 
@@ -294,10 +294,10 @@ view_top.addEventListener('swipe', function(e){
 
 view_top.add(lab_timer);
 view_top.add(btn_scroll);
-view_main.add(btn_start);
-view_main.add(btn_pause);
-view_main.add(btn_stop);
-view_main.addAnnotation(_geo.getAnno_current());
+view_scroll_one.add(btn_start);
+view_scroll_one.add(btn_pause);
+view_scroll_one.add(btn_stop);
+view_scroll_one.addAnnotation(_geo.getAnno_current());
 
 
 
@@ -306,7 +306,7 @@ view_main.addAnnotation(_geo.getAnno_current());
  */
 
 //svc_geo.monitorGPSPosition();
-
+/*
 function tracking(){
 
 	var i = 1;
@@ -329,7 +329,7 @@ function tracking(){
 				prec_anno.setPincolor(Titanium.Map.ANNOTATION_RED);
 			}
 
-			view_main.addRoute({
+			view_scroll_one.addRoute({
 				name : 'myRoute',
 				width : 4,
 				color : '#f00',	
@@ -339,7 +339,7 @@ function tracking(){
 				]
 			});
 
-			view_main.addAnnotation(anno);
+			view_scroll_one.addAnnotation(anno);
 			prec_anno = anno;
 			i++;	
 		} else {
@@ -349,3 +349,4 @@ function tracking(){
 	}, 3000);
 
 }
+*/

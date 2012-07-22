@@ -44,7 +44,7 @@ Timer.prototype.start = function(callback) {
 Timer.prototype.pause = function() {
 	clearInterval(this.timer);
     this.timer = null;
-    self.isStart = false;
+    this.isStart = false;
 };
 
 

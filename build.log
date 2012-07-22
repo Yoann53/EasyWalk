@@ -1,37 +1,123 @@
 Logfile initialized
 [INFO] logfile = /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build.log
-[DEBUG] /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/builder.py simulator EasyWalk /Users/yoanngauchard /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk com.TeamEasyWalk.EasyWalk 1 HVGA 
-[INFO] Building EasyWalk for Android ... one moment
+[DEBUG] /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/builder.py install EasyWalk /Users/yoanngauchard /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk com.TeamEasyWalk.EasyWalk 20
 [INFO] Titanium SDK version: 2.1.0 (06/28/12 12:16 6e3cab6)
 [DEBUG] Waiting for device to be ready ...
 [TRACE] adb devices returned 1 devices/emulators
-[TRACE] adb devices returned 1 devices/emulators
-[TRACE] adb devices returned 1 devices/emulators
-[TRACE] adb devices returned 1 devices/emulators
-[DEBUG] Device connected... (waited 15 seconds)
-[DEBUG] waited 15.156620 seconds on emulator to get ready
-[INFO] Waiting for the Android Emulator to become available
-[DEBUG] com.TeamEasyWalk.EasyWalk installed? True
-[INFO] Fastdev server running, deploying in Fastdev mode
+[DEBUG] Device connected... (waited 0 seconds)
+[DEBUG] waited 0.031767 seconds on emulator to get ready
+[DEBUG] com.TeamEasyWalk.EasyWalk installed? False
 [INFO] Copying CommonJS modules...
 [INFO] Copying project resources..
-[TRACE] COPYING MODIFIED FILE: /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/services/business_services/profile.js => /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/bin/assets/Resources/services/business_services/profile.js
-[TRACE] COPYING MODIFIED FILE: /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/ui/common/view_signup.js => /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/bin/assets/Resources/ui/common/view_signup.js
-[INFO] Tiapp.xml unchanged, skipping class generation
+[TRACE] COPYING MODIFIED FILE: /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/services/business_services/geo.js => /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/bin/assets/Resources/services/business_services/geo.js
+[TRACE] Generating Java Classes
 [DEBUG] Processing Android resource drawables
+[DEBUG] copying app icon: /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/bin/assets/Resources/appicon.png
+[DEBUG] generating theme.xml
 [DEBUG] found drawable-long-land-hdpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-long-land-hdpi/default.png
+[DEBUG] copying /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-long-land-hdpi/default.png splash screen to /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/res/drawable-long-land-hdpi/background.png
 [DEBUG] found drawable-long-land-ldpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-long-land-ldpi/default.png
+[DEBUG] copying /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-long-land-ldpi/default.png splash screen to /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/res/drawable-long-land-ldpi/background.png
 [DEBUG] found drawable-long-port-hdpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-long-port-hdpi/default.png
+[DEBUG] copying /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-long-port-hdpi/default.png splash screen to /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/res/drawable-long-port-hdpi/background.png
 [DEBUG] found drawable-long-port-ldpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-long-port-ldpi/default.png
+[DEBUG] copying /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-long-port-ldpi/default.png splash screen to /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/res/drawable-long-port-ldpi/background.png
 [DEBUG] found drawable-notlong-land-hdpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-land-hdpi/default.png
+[DEBUG] copying /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-land-hdpi/default.png splash screen to /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/res/drawable-notlong-land-hdpi/background.png
 [DEBUG] found drawable-notlong-land-ldpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-land-ldpi/default.png
+[DEBUG] copying /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-land-ldpi/default.png splash screen to /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/res/drawable-notlong-land-ldpi/background.png
 [DEBUG] found drawable-notlong-land-mdpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-land-mdpi/default.png
+[DEBUG] copying /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-land-mdpi/default.png splash screen to /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/res/drawable-notlong-land-mdpi/background.png
 [DEBUG] found drawable-notlong-port-hdpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-port-hdpi/default.png
+[DEBUG] copying /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-port-hdpi/default.png splash screen to /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/res/drawable-notlong-port-hdpi/background.png
 [DEBUG] found drawable-notlong-port-ldpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-port-ldpi/default.png
+[DEBUG] copying /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-port-ldpi/default.png splash screen to /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/res/drawable-notlong-port-ldpi/background.png
 [DEBUG] found drawable-notlong-port-mdpi splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-port-mdpi/default.png
-[INFO] Waiting for SDCard to become available..
-[INFO] Re-launching application ... EasyWalk
-[INFO] Launching application ... EasyWalk
-[TRACE] Launch output: Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] cmp=com.TeamEasyWalk.EasyWalk/.EasywalkActivity }
-
-[INFO] Android Emulator has exited
+[DEBUG] copying /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/android/images/res-notlong-port-mdpi/default.png splash screen to /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/res/drawable-notlong-port-mdpi/background.png
+[DEBUG] found splash screen at /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/bin/assets/Resources/default.png
+[TRACE] Writing out AndroidManifest.xml
+[DEBUG] adding /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/gen/com/TeamEasyWalk/EasyWalk/EasywalkActivity.java to javac build list
+[DEBUG] adding /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/gen/com/TeamEasyWalk/EasyWalk/EasywalkAppInfo.java to javac build list
+[DEBUG] adding /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/gen/com/TeamEasyWalk/EasyWalk/EasywalkApplication.java to javac build list
+[DEBUG] adding /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/gen/com/TeamEasyWalk/EasyWalk/R.java to javac build list
+[DEBUG] Building Java Sources: "/Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/gen/com/TeamEasyWalk/EasyWalk/EasywalkActivity.java" "/Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/gen/com/TeamEasyWalk/EasyWalk/EasywalkAppInfo.java" "/Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/gen/com/TeamEasyWalk/EasyWalk/EasywalkApplication.java" "/Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/gen/com/TeamEasyWalk/EasyWalk/R.java"
+[INFO] Compiling Android Resources... This could take some time
+[DEBUG] Android classes.dex built
+[DEBUG] creating unsigned apk: /Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/build/android/bin/app-unsigned.apk
+[DEBUG] from resource zip => assets/Resources/business_entities/User.js
+[DEBUG] from resource zip => assets/Resources/images/ButtonLargeGray.png
+[DEBUG] from resource zip => assets/Resources/images/bkgCenterLight.png
+[DEBUG] from resource zip => assets/Resources/services/business_services/geo.js
+[DEBUG] from resource zip => assets/Resources/services/business_services/profile.js
+[DEBUG] from resource zip => assets/Resources/services/resources_services/file.js
+[DEBUG] from resource zip => assets/Resources/services/resources_services/web.js
+[DEBUG] from resource zip => assets/Resources/services/utils_services/timer.js
+[DEBUG] from resource zip => assets/Resources/services/utils_services/utils.js
+[DEBUG] from resource zip => assets/Resources/ui/common/ApplicationTabGroup.js
+[DEBUG] from resource zip => assets/Resources/ui/common/view_first.js
+[DEBUG] from resource zip => assets/Resources/ui/common/view_login.js
+[DEBUG] from resource zip => assets/Resources/ui/common/view_scroll_one.js
+[DEBUG] from resource zip => assets/Resources/ui/common/view_signup.js
+[DEBUG] from resource zip => assets/Resources/ui/common/win_race.js
+[DEBUG] from resource zip => assets/Resources/ui/handheld/ApplicationWindow.js
+[DEBUG] from resource zip => assets/Resources/ui/tablet/ApplicationWindow.js
+[DEBUG] from resource zip => assets/Resources/KS_nav_ui.png
+[DEBUG] from resource zip => assets/Resources/KS_nav_views.png
+[DEBUG] from resource zip => assets/Resources/app.js
+[DEBUG] from resource zip => assets/Resources/appicon.png
+[DEBUG] from resource zip => assets/Resources/default.png
+[DEBUG] from resource zip => assets/Resources/ti.cloud.js
+[DEBUG] from resource zip => assets/app.json
+[DEBUG] from resource zip => assets/index.json
+[DEBUG] from resource zip => assets/tiapp.xml
+[DEBUG] from resource zip => res/drawable/appicon.png
+[DEBUG] from resource zip => res/drawable/background.png
+[DEBUG] from resource zip => res/drawable/close.png
+[DEBUG] from resource zip => res/drawable/facebook_login.png
+[DEBUG] from resource zip => res/drawable/facebook_login_down.png
+[DEBUG] from resource zip => res/drawable/facebook_login_wide.png
+[DEBUG] from resource zip => res/drawable/facebook_login_wide_down.png
+[DEBUG] from resource zip => res/drawable/facebook_logout.png
+[DEBUG] from resource zip => res/drawable/facebook_logout_down.png
+[DEBUG] from resource zip => res/layout/titanium_tabgroup.xml
+[DEBUG] from resource zip => AndroidManifest.xml
+[DEBUG] from resource zip => resources.arsc
+[DEBUG] from resource zip => res/drawable-hdpi/close.png
+[DEBUG] from resource zip => res/drawable-ldpi/close.png
+[DEBUG] from resource zip => res/drawable-long-land-hdpi/background.png
+[DEBUG] from resource zip => res/drawable-long-land-ldpi/background.png
+[DEBUG] from resource zip => res/drawable-long-port-hdpi/background.png
+[DEBUG] from resource zip => res/drawable-long-port-ldpi/background.png
+[DEBUG] from resource zip => res/drawable-notlong-land-hdpi/background.png
+[DEBUG] from resource zip => res/drawable-notlong-land-ldpi/background.png
+[DEBUG] from resource zip => res/drawable-notlong-land-mdpi/background.png
+[DEBUG] from resource zip => res/drawable-notlong-port-hdpi/background.png
+[DEBUG] from resource zip => res/drawable-notlong-port-ldpi/background.png
+[DEBUG] from resource zip => res/drawable-notlong-port-mdpi/background.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/thirdparty.jar => org/apache/Commons-NOTICE.txt
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/thirdparty.jar => org/apache/HttpComponents-NOTICE.txt
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/thirdparty.jar => org/apache/mime4j-NOTICE.txt
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/modules/titanium-ui.jar => ti/modules/titanium/ui/widget/webview/binding.js
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/modules/titanium-ui.jar => ti/modules/titanium/ui/widget/webview/binding.min.js
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/modules/titanium-ui.jar => ti/modules/titanium/ui/widget/webview/json2.js
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/modules/titanium-facebook.jar => ti/modules/titanium/facebook/LICENSE
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/build.properties
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/background.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/btn_check_buttonless_on.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_18.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_48.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/btn_more.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/btn_more_18.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/btn_more_48.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/btn_picker_normal.9.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/btn_picker_pressed.9.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/btn_picker_selected.9.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/default_icon.png
+[DEBUG] from JAR /Users/yoanngauchard/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/titanium.jar => org/appcelerator/titanium/res/drawable/photoDefault.png
+[DEBUG] installing native SDK libs
+[DEBUG] Waiting for device to be ready ...
+[TRACE] adb devices returned 1 devices/emulators
+[DEBUG] Device connected... (waited 0 seconds)
+[DEBUG] waited 0.031394 seconds on emulator to get ready
+[INFO] Installing application on device
+[INFO] Application installed. Launch from drawer on Home Screen

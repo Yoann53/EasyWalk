@@ -29,6 +29,8 @@ function displayTimerCallback(obj_timer) {
 function displayAlertCallback() {
 	
 }
+
+
 /*
  * UI elements
  */
@@ -280,9 +282,9 @@ Ti.App.addEventListener('evtLocationUpdate', function(obj_coords){
 
 
 view_top.addEventListener('swipe', function(e){
-
+	
 	Ti.API.info('Ca marche');
-
+	
 });
 
 

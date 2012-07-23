@@ -28,20 +28,20 @@ exports.ApplicationTabGroup = function() {
 	
 	var tab_start = Titanium.UI.createTab({  
 	    title:"Start",  
-	    window:win_start,
-	    icon:Ti.UI.iPhone.SystemIcon.FEATURED  
+	    icon:Ti.UI.iPhone.SystemIcon.FEATURED,
+	    window:win_start  
 	});    
 	
 	var tab_history = Titanium.UI.createTab({  
 	    title:"History",  
-	    window:win_history,
-	    icon:Ti.UI.iPhone.SystemIcon.HISTORY
+	    icon:Ti.UI.iPhone.SystemIcon.HISTORY,
+	    window:win_history
 	});
 	
 	var tab_downloads = Titanium.UI.createTab({  
 	    title:"Downloads",  
-	    window:win_downloads,
-	    icon:Ti.UI.iPhone.SystemIcon.DOWNLOADS
+	    icon:Ti.UI.iPhone.SystemIcon.DOWNLOADS,
+	    window:win_downloads
 	});
 
 	//Hide TabBar
@@ -50,5 +50,6 @@ exports.ApplicationTabGroup = function() {
 	tabGroup.addTab(tab_history);  
 	tabGroup.addTab(tab_downloads); 
 	tabGroup.open();
+	
 };
 

@@ -21,7 +21,7 @@ var images = [
 ];
 
 for (var i=0; i<10; i++) {
-	var row = Ti.UI.createTableViewRow({height:'auto',backgroundColor:'#ffffff',selectedBackgroundColor:'#dddddd'});	
+	var row = Ti.UI.createTableViewRow({height:'auto',backgroundColor:'#ffffff',selectedBackgroundColor:'#dddddd',hasDetail:true});	
 
 	var lab_title = Ti.UI.createLabel({
 		text: 'Randonnée '+i,
@@ -46,7 +46,6 @@ for (var i=0; i<10; i++) {
 	});
 	row.add(lab_desc);
 	
-	// Kosso:
 	// using remote image array
 	var img_photo = Ti.UI.createImageView({
 		image: images[i],
@@ -65,8 +64,7 @@ for (var i=0; i<10; i++) {
 var tableview = Titanium.UI.createTableView({
 	data:data, 
 	editable:true, 
-	moveable:true,
-	hasDetail:true
+	moveable:true
 });
 
 

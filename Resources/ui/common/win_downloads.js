@@ -2,11 +2,21 @@
  * @author Yoann GAUCHARD
  */
 
+var isAndroid = (Ti.Platform.osname == 'android') ? true : false;
 
 var win = Titanium.UI.currentWindow;
 
+//Invoke web service
+var svc_web = require('services/resources_services/web'); 
+
+var userId = 9;
+
 // create table view data object
 var data = [];
+
+
+//Take all circuits buyed by user
+var json = svc_web.getCircuits(userId);
 
 var images = [
 	'http://i.ytimg.com/vi/CzyilSByWbo/0.jpg',
@@ -21,11 +31,11 @@ var images = [
 	'http://www.bytelove.com/images/uploads/Bytelove/Geek/rss%20feed%20me%20-%20photo.jpg'
 ];
 
-for (var i=0; i<10; i++) {
-	var row = Ti.UI.createTableViewRow({height:'auto',backgroundColor:'#ffffff',selectedBackgroundColor:'#dddddd'});	
+for(var i=0, max=json.posts.length; i<max; i++){
+	var row = Ti.UI.createTableViewRow({height:'auto',backgroundColor:'#ffffff',selectedBackgroundColor:'#dddddd',hasChild:true});	
 
 	var lab_title = Ti.UI.createLabel({
-		text: 'Randonnée '+i,
+		text: json.posts[i].circuit.Title,
 		color: '#b40000',
 		textAlign:'left',
 		left:70,
@@ -37,7 +47,7 @@ for (var i=0; i<10; i++) {
 	
 	
 	var lab_desc = Ti.UI.createLabel({
-		text: 'Date - distance - durée',
+		text: json.posts[i].circuit.Difficulty + ' - ' +json.posts[i].circuit.Distance + ' km - ' + json.posts[i].circuit.Duration, 
 		color: '#111',
 		textAlign:'left',
 		left:70,
@@ -47,10 +57,11 @@ for (var i=0; i<10; i++) {
 	});
 	row.add(lab_desc);
 	
-	// Kosso:
+	
 	// using remote image array
 	var img_photo = Ti.UI.createImageView({
 		image: images[i],
+		//image: "http://remoue.fr/"+json.posts[i].circuit.Miniature,
 		top: 5,
 		left: 5,
 		width:60,
@@ -64,43 +75,8 @@ for (var i=0; i<10; i++) {
 
 // create table view
 var tableview = Titanium.UI.createTableView({
-	data:data, 
-	editable:true, 
-	moveable:true,
-	hasDetail:true
-});
-
-
-// add move event listener
-tableview.addEventListener('move',function(e)
-{
-	Titanium.API.info("move - row="+e.row+", index="+e.index+", section="+e.section+", from = "+e.fromIndex);
+	data:data
 });
 
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
-
-//
-//  create edit/cancel buttons for nav bar
-//
-var edit = Titanium.UI.createButton({
-	title:'Edit'
-});
-
-edit.addEventListener('click', function()
-{
-	win.setRightNavButton(cancel);
-	tableview.editing = true;
-});
-
-var cancel = Titanium.UI.createButton({
-	title:'Cancel',
-	style:Titanium.UI.iPhone.SystemButtonStyle.DONE
-});
-cancel.addEventListener('click', function()
-{
-	win.setRightNavButton(edit);
-	tableview.editing = false;
-});
-
-win.setRightNavButton(edit);

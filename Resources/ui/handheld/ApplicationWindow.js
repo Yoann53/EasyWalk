@@ -4,7 +4,7 @@ function ApplicationWindow() {
 	
 	//load component dependencies
 	var mod_view_first = (isAndroid) ? require('../common/view_first') : require('ui/common/view_first');
-
+	
 	//Check cookie if user is already logged
 	//var svc_file = require('/services/resources_services/file');
 	//var logged = svc_file.isCookieExist();

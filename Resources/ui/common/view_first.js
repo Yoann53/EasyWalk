@@ -132,7 +132,8 @@ function FirstView(win_main) {
 	    }else{
 	    	var tabgroup = (isAndroid) ? require('../common/ApplicationTabGroup') : require('ui/common/ApplicationTabGroup');
 			tabgroup.ApplicationTabGroup();
-	    	Ti.App.fireEvent('error_login');
+			Ti.App.CurrentWindow.Close();
+	    	//Ti.App.fireEvent('error_login');
 	    }
 	});
 	

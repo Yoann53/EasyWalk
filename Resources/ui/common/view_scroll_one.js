@@ -29,8 +29,6 @@ function displayTimerCallback(obj_timer) {
 function displayAlertCallback() {
 	
 }
-
-
 /*
  * UI elements
  */
@@ -48,19 +46,19 @@ var view_scroll_one = Titanium.Map.createView({
 });
 
 var view_top = Titanium.UI.createView({
-	backgroundColor:'#000',
+	backgroundImage: '../../images/topView.png',
 	height:100,
 	width:'auto',
 	top:-100
 });
 
 var btn_scroll = Ti.UI.createButton({
-	height : 20,
-	width : 20,
+	height : 10,
+	width : 10,
 	title : 'o',
 	bottom : 0,
-	left : 130,
-	color : "red"
+	left : 158,
+	color : "green"
 });
 
 var btn_start = Ti.UI.createButton({
@@ -91,12 +89,12 @@ var btn_stop = Ti.UI.createButton({
 var lab_timer =  Ti.UI.createLabel({
 	text:"00 : 00 : 00",
 	height:40,
-	width:200,
-	top:0,
-	right:0,
+	width:180,
+	top:20,
+	left:18,
 	color:'#fff',
-	borderRadius:10,
-	backgroundColor:'#000',
+	//borderRadius:10,
+	backgroundColor:'transparent',
 	font:{
 		fontSize:30,
 		fontWeight:'bold'
@@ -105,64 +103,64 @@ var lab_timer =  Ti.UI.createLabel({
 });
 
 var lab_distance =  Ti.UI.createLabel({
-	text:"Distance 00 km",
+	text:"00 km parcourus",
 	height:40,
-	width:50,
-	top:0,
-	right:0,
+	width:200,
+	bottom:14,
+	left:10,
 	color:'#fff',
 	borderRadius:10,
-	backgroundColor:'#000',
+	backgroundColor:'transparent',
 	font:{
-		fontSize:10,
+		fontSize:15,
 		fontWeight:'bold'
 	},
 	textAlign:'center'
 });
 
 var lab_speed =  Ti.UI.createLabel({
-	text:"Vitesse 00 km/h",
+	text:"00 km/h",
 	height:40,
-	width:50,
-	bottom:0,
+	width:100,
 	left:0,
 	color:'#fff',
 	borderRadius:10,
-	backgroundColor:'#000',
+	backgroundColor:'transparent',
 	font:{
-		fontSize:10,
-		fontWeight:'bold'
-	},
-	textAlign:'center'
-});
-
-var lab_calories =  Ti.UI.createLabel({
-	text:"Calories 000",
-	height:40,
-	width:230,
-	top:0,
-	left:0,
-	color:'#fff',
-	borderRadius:10,
-	backgroundColor:'#000',
-	font:{
-		fontSize:10,
+		fontSize:15,
 		fontWeight:'bold'
 	},
 	textAlign:'center'
 });
 
 var lab_avgspeed =  Ti.UI.createLabel({
-	text:"Vitesse moy. 00 km/h",
+	text:"00 km/h",
 	height:40,
-	width:230,
-	top:0,
-	left:0,
+	width:100,
+	top:8,
+	right:16,
 	color:'#fff',
 	borderRadius:10,
-	backgroundColor:'#000',
+	backgroundColor:'transparent',
 	font:{
-		fontSize:10,
+		fontSize:15,
+		fontWeight:'bold'
+	},
+	textAlign:'center'
+});
+
+
+var lab_calories =  Ti.UI.createLabel({
+	text:"00 cal.",
+	height:40,
+	width:100,
+	bottom:11,
+	right:15,
+	color:'#fff',
+	borderRadius:10,
+	backgroundColor:'transparent',
+	font:{
+		fontSize:15,
 		fontWeight:'bold'
 	},
 	textAlign:'center'
@@ -248,7 +246,7 @@ btn_scroll.addEventListener('click', function(){
 	} else {
 		//ScrollUp animation
 		var scrollUpAnimation = Ti.UI.createAnimation({
-			top : -80,
+			top : -90,
 			duration : 800 
 		});
 
@@ -293,6 +291,9 @@ view_top.addEventListener('swipe', function(e){
  */
 
 view_top.add(lab_timer);
+view_top.add(lab_distance);
+view_top.add(lab_avgspeed);
+view_top.add(lab_calories);
 view_top.add(btn_scroll);
 view_scroll_one.add(btn_start);
 view_scroll_one.add(btn_pause);

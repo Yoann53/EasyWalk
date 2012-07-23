@@ -1,7 +1,7 @@
 /**
  * @author Yoann GAUCHARD
  */
-var isAndroid = (Ti.Platform.osname == 'android') ? true : false;
+
 
 
 var win_race = Titanium.UI.currentWindow;

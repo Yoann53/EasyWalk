@@ -2,84 +2,104 @@
  * @author Yoann GAUCHARD
  */
 
-// by default the modal window has a nav bar
-// since we're embedding a navgroup inside the modal
-// window which also has a nav bar, we ask him to hide it
+var win = Titanium.UI.currentWindow;
 
-var open = Ti.UI.createButton({
-	title:'Open nav group',
-	top:150,
-	width:200,
-	height:40
-});
-open.addEventListener('click', function() {
-	modal.open({modal:true});
-});
-Ti.UI.currentWindow.add(open);
+// create table view data object
+var data = [];
 
-var modal = Ti.UI.createWindow({
-	navBarHidden:true
-});
+var images = [
+	'http://i.ytimg.com/vi/CzyilSByWbo/0.jpg',
+	'http://i.ytimg.com/vi/ltSyVNO5tvM/0.jpg',
+	'http://m.wsj.net/video/20100217/021710atdlynch/021710atdlynch_115x65.jpg',
+	'http://philestore1.phreadz.com/_users/2d/04/e4/16/bennycrime/2010/02/19/bennycrime_1266618797_60.jpg',
+	'http://philestore1.phreadz.com/_users/30/02/86/06/kosso/2010/02/19/kosso_1266556045_60.jpg',
+	'http://farm5.static.flickr.com/4019/4369245306_7e96b9dd39_s.jpg',
+	'http://a3.twimg.com/profile_images/294512463/kosso_k2_normal.jpg',
+	'http://a1.twimg.com/profile_images/682506508/freakshowicon_normal.jpg',
+	'http://www.appcelerator.com/wp-content/themes/appcelerator/img/ipad_image.png',
+	'http://www.bytelove.com/images/uploads/Bytelove/Geek/rss%20feed%20me%20-%20photo.jpg'
+];
 
-var modalWin = Ti.UI.createWindow({
-	backgroundColor:"red"
-});
+for (var i=0; i<10; i++) {
+	var row = Ti.UI.createTableViewRow({height:'auto',backgroundColor:'#ffffff',selectedBackgroundColor:'#dddddd'});	
 
-var nav = Ti.UI.iPhone.createNavigationGroup({
-	window:modalWin,
-	backgroundColor:'blue'
-});
-
-var table = Ti.UI.createTableView({
-	style:Ti.UI.iPhone.TableViewStyle.GROUPED,
-	data:[{title:"Well look at this"},{title:"TweetDeck is cool"}]
-});
-modalWin.add(table);
-
-var done = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.DONE
-});
-
-modalWin.setRightNavButton(done);
-
-done.addEventListener('click',function() 
-{
-	modal.close();
-});
-
-table.addEventListener('click',function(e)
-{
-	var b = Titanium.UI.createButton({
-		title:'Back (no anim)',
-		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+	var lab_title = Ti.UI.createLabel({
+		text: 'Randonnée '+i,
+		color: '#b40000',
+		textAlign:'left',
+		left:70,
+		top:2,
+		height:'auto',
+		font:{fontWeight:'bold',fontSize:13}
 	});
-	b.addEventListener('click', function() {
-		nav.close(w,{animated:false});
+	row.add(lab_title);
+	
+	
+	var lab_desc = Ti.UI.createLabel({
+		text: 'Date - distance - durée',
+		color: '#111',
+		textAlign:'left',
+		left:70,
+		height:'auto',
+		top:17,
+		font:{fontWeight:'bold',fontSize:16}
 	});
-	var w = Ti.UI.createWindow({
-		title:e.rowData.title,
-		rightNavButton:b
-	});
-	w.addEventListener('focus',function()
-	{
-		Ti.API.info("nav group window -- focus event");
-	});
-	w.addEventListener('blur',function()
-	{
-		Ti.API.info("nav group window -- blur event");
-	});
-	var b = Ti.UI.createButton({
-		title:"Close Nav",
-		width:120,
+	row.add(lab_desc);
+	
+	// Kosso:
+	// using remote image array
+	var img_photo = Ti.UI.createImageView({
+		image: images[i],
+		top: 5,
+		left: 5,
+		width:60,
 		height:40
 	});
-	b.addEventListener('click',function()
-	{
-		modal.close();
-	});
-	w.add(b);
-	nav.open(w);
+
+	row.add(img_photo);
+	
+	data[i] = row;
+}
+
+// create table view
+var tableview = Titanium.UI.createTableView({
+	data:data, 
+	editable:true, 
+	moveable:true,
+	hasDetail:true
 });
 
-modal.add(nav);
-modal.open({modal:true});
+
+// add move event listener
+tableview.addEventListener('move',function(e)
+{
+	Titanium.API.info("move - row="+e.row+", index="+e.index+", section="+e.section+", from = "+e.fromIndex);
+});
+
+// add table view to the window
+Titanium.UI.currentWindow.add(tableview);
+
+//
+//  create edit/cancel buttons for nav bar
+//
+var edit = Titanium.UI.createButton({
+	title:'Edit'
+});
+
+edit.addEventListener('click', function()
+{
+	win.setRightNavButton(cancel);
+	tableview.editing = true;
+});
+
+var cancel = Titanium.UI.createButton({
+	title:'Cancel',
+	style:Titanium.UI.iPhone.SystemButtonStyle.DONE
+});
+cancel.addEventListener('click', function()
+{
+	win.setRightNavButton(edit);
+	tableview.editing = false;
+});
+
+win.setRightNavButton(edit);

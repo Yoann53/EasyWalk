@@ -22,7 +22,7 @@ function ApplicationWindow() {
 			backgroundColor:'#ffffff'
 		});		
 	}
-
+	
 	//construct UI
 	var view_first = new mod_view_first(self);
 	self.add(view_first);

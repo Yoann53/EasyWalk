@@ -69,9 +69,33 @@ exports.getView = function(){
 
 	//global variable
 	var ent_user;
+	
+	var activityIndicator = Ti.UI.createActivityIndicator({
+      color: 'white',
+      font: {fontFamily:'Helvetica Neue', fontSize:20, fontWeight:'bold'},
+      message: 'Loading...',
+      style:Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN,
+      top:290,
+      height:'auto',
+      width:'auto'
+    });
+    
+    if(!isAndroid) view_signup.add(activityIndicator);
 
+	// eventListeners must always be loaded before the event is fired 
+	btn_send.addEventListener('click', function () {
+  		btn_send.setVisible(false);
+		activityIndicator.show();
+		// do some work that takes 6 seconds
+		// ie. replace the following setTimeout block with your code
+		setTimeout(function(){
+			activityIndicator.hide();
+			btn_send.setVisible(true);
+		}, 6000);
+    });
+	
 	btn_send.addEventListener('click', function(){
-
+		
 		try{
 			//Handle all textfield values
 			var obj_params = {
@@ -86,25 +110,19 @@ exports.getView = function(){
 
 			//Call signup service to register the current user on webserver
 			var result  = svc_profile.signup(obj_params);
-
-			if(typeof(result) == 'string'){
-				alert(result);
-			} else if(typeof(result) == 'object') {
-				ent_user = result;
-
-				/*
-
-				var win_start = Titanium.UI.createWindow({  
-			    	title:'Bienvenue sur EasyWalk',
-			    	backgroundColor:'#336699',
-			    	//url:'../start.js'  
-				});
-
-				*/
-				//Ti.UI.currentTab.open(win_start);
-			} else {
-				alert('erreur d\'inscription');
-			}
+			
+			//Tempo to be sure we have time to receive the webservice response
+			setTimeout(function(){
+       			
+       			if(typeof(result) == 'string'){
+					alert(result);
+				} else if(typeof(result) == 'object') {
+					ent_user = result;
+					
+				} else {
+					alert('erreur d\'inscription');
+				}
+      		}, 6000);
 			
 		} catch(e) {
 			Ti.API.info('[DEV] SignUp ui EventListener failed : ' + e);

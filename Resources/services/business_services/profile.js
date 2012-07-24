@@ -26,7 +26,7 @@ exports.signup = function(obj_userArgs){
 		if (obj_userArgs.login == '' || obj_userArgs.password1 == '' || obj_userArgs.password2 == '' || obj_userArgs.username == '') {
 	    	return 'Veuillez renseigner tous les champs !';
 		}
-
+		
 
 		//** 2 - Check if login is a valid **//
 
@@ -38,16 +38,14 @@ exports.signup = function(obj_userArgs){
     	if(!mailok) return 'Adresse mail invalide !';
 
 
-
 		//** 3 - Check if current user is exist **//
 
     	//Invoke web services
 		var svc_web = (isAndroid) ? require('../resources_services/web') : require('services/resources_services/web');
 
 		//Call "isExist" service to check if current user already exists
-		var isExist = svc_web.isExist(obj_userArgs.login);
+		var isExist = svc_web.isExist('admin'); //obj_userArgs.login
 		if(isExist) return 'Login déjà utilisé !';			
-
 
 
 		//** 4 - Save user on web server **//
@@ -55,20 +53,19 @@ exports.signup = function(obj_userArgs){
 		if(obj_userArgs.password1 != obj_userArgs.password2) return 'Mots de passe différents !';	 		
 
 
-
 		//** 5 - Save user on web server **//
 
 		//Call postUserInfo service to register the current user on webserver
 		var success = svc_web.postUserInfo(obj_userArgs);
-
+		
 		if(!success) {
 			return 'L\'inscription a échouée !';
 		} else {
 
-
 			//** 6 - Create one cookie on mobile **//
 
 			var obj_userParams = {
+				id : obj_userArgs.id,
 				login : obj_userArgs.login,
 				password : Ti.Utils.md5HexDigest(obj_userArgs.password1),
 				username : obj_userArgs.username,
@@ -87,9 +84,11 @@ exports.signup = function(obj_userArgs){
 			var User = (isAndroid) ? require('../../business_entities/user') : require('business_entities/user');  
 
 			var obj_user = new User();
+			obj_user.setId(obj_userArgs.id);
 			obj_user.setLogin(obj_userArgs.login);
 			obj_user.setPassword(obj_userArgs.password1);
 			obj_user.setUsername(obj_userArgs.username);
+			obj_user.persist();
 			return obj_user;
 		}//end else
 
@@ -117,12 +116,13 @@ exports.login = function(obj_userArgs){
 			
 		} else {
 
-			//Call "etuserInfo" service to get user infos
+			//Call "userInfo" service to get user infos
 			var obj_userInfo = svc_web.getUserInfo(obj_userArgs.login);
 
 			//** 1 - Create one cookie on mobile **//
 
 			var obj_userParams = {
+				id : obj_userInfo.id,
 				login : obj_userInfo.login,
 				password : obj_userInfo.password,
 				username : obj_userInfo.username
@@ -140,6 +140,7 @@ exports.login = function(obj_userArgs){
 			var User = (isAndroid) ? require('../../business_entities/user') : require('business_entities/user');  
 
 			var obj_user = new User();
+			obj_user.setId(obj_userInfo.id);
 			obj_user.setLogin(obj_userInfo.login);
 			obj_user.setPassword(obj_userInfo.password);
 			obj_user.setUsername(obj_userInfo.username);

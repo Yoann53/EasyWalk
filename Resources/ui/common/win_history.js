@@ -1,11 +1,18 @@
 /**
  * @author Yoann GAUCHARD
  */
-
+var isAndroid = (Ti.Platform.osname == 'android') ? true : false;
 var win = Titanium.UI.currentWindow;
 
 // create table view data object
 var data = [];
+
+//Invoke web service
+var svc_web = (isAndroid) ? require('services/resources_services/web') : require('services/resources_services/web');
+
+//Take all traces records
+var json = svc_web.getTraces(userId);
+
 
 var images = [
 	'http://i.ytimg.com/vi/CzyilSByWbo/0.jpg',
@@ -24,7 +31,7 @@ for (var i=0; i<10; i++) {
 	var row = Ti.UI.createTableViewRow({height:'auto',backgroundColor:'#ffffff',selectedBackgroundColor:'#dddddd',hasDetail:true});	
 
 	var lab_title = Ti.UI.createLabel({
-		text: 'Randonnée '+i,
+		text: json.posts[i].circuit.Title + ' ' + json.posts[i].circuit.Date,
 		color: '#b40000',
 		textAlign:'left',
 		left:70,
@@ -36,7 +43,7 @@ for (var i=0; i<10; i++) {
 	
 	
 	var lab_desc = Ti.UI.createLabel({
-		text: 'Date - distance - durée',
+		text: json.posts[i].circuit.Difficulty + ' - ' +json.posts[i].circuit.Distance + ' km - ' + json.posts[i].circuit.Duration,
 		color: '#111',
 		textAlign:'left',
 		left:70,

@@ -7,16 +7,16 @@ var isAndroid = (Ti.Platform.osname == 'android') ? true : false;
 var win = Titanium.UI.currentWindow;
 
 //Invoke web service
-var svc_web = require('services/resources_services/web'); 
-
-var userId = 9;
+var svc_web = (isAndroid) ? require('services/resources_services/web') : require('services/resources_services/web');
 
 // create table view data object
 var data = [];
 
 
 //Take all circuits buyed by user
-var json = svc_web.getCircuits(userId);
+var json = svc_web.getCircuits(2);
+alert('voila du boidin : '+json);
+
 
 var images = [
 	'http://i.ytimg.com/vi/CzyilSByWbo/0.jpg',

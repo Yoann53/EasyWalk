@@ -1,1 +1,0 @@
-/Users/yoanngauchard/Documents/Titanium Studio Workspace/EasyWalk/Resources/ui/common/win_myRaces.js

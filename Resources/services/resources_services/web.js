@@ -11,40 +11,31 @@ exports.isExist = function(username){
 	//Check if user exists on database server
 	try{ 
 
-		var url = 'http://remoue.fr:81/Services/WebServ/API/isExist.php?login="'+ username +'"&format=json'; 
+		var url = 'http://remoue.fr:81/Services/WebServ/API/isExist.php?login='+ username +'&format=json'; 
         var json;
-        var test;
         var xhr = Ti.Network.createHTTPClient({
-        	validatesSecureCertificate: false,
-    		tlsVersion: Titanium.Network.TLS_VERSION_1_1,
+
 	    	onload: function(e) {
 				// this function is called when data is returned from the server and available for use
 		        // this.responseText holds the raw text return of the message (used for text/JSON)
 		        // this.responseXML holds any returned XML (including SOAP)
 		        // this.responseData holds any returned binary data
-		        
-		        json = JSON.parse(this.responseText);
-		        test = this.responseText;
+	        	json = JSON.parse(this.responseText);
+				return json['isUser'];
 		    },
 		    onerror: function(e) {
 				// this function is called when an error occurs, including a timeout
 		        Ti.API.info(e.error);
 		    },
-		    timeout: 30000  /* in milliseconds */
+		    timeout: 4000  /* in milliseconds */
 		});
 		
 		xhr.open("GET",url); //replace by url var
 		xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
 		xhr.send(); // request is actually sent with this statement
-		alert('test' + test);
-		alert('json : '+json);
-
-		return json.isUser;
-		//return false;      	
 	} catch(e) {
-
+		
 		Ti.API.info('[DEV] isExist web service failed : ' + e);
-
 	}
 };
 
@@ -56,7 +47,7 @@ exports.postUserInfo = function(user_args){
 	//Check if user exists on database server
 	try{ 
 
-		var url = 'http://EasyWalk.com/WebServ/API/postUserInfo/format=json'; 
+		var url = 'http://remoue.fr:81/Services/WebServ/API/postUser.php?format=json'; 
         var json;
         var xhr = Ti.Network.createHTTPClient({
 	    	onload: function(e) {
@@ -65,7 +56,9 @@ exports.postUserInfo = function(user_args){
 		        // this.responseXML holds any returned XML (including SOAP)
 		        // this.responseData holds any returned binary data
 		        Ti.API.info(this.responseText);
-		        //json = JSON.parse(this.responseText);
+		        json = JSON.parse(this.responseText);
+		        alert(json);
+		        alert(json['posts']);
 		    },
 		    onerror: function(e) {
 				// this function is called when an error occurs, including a timeout
@@ -74,18 +67,16 @@ exports.postUserInfo = function(user_args){
 		    timeout: 5000  /* in milliseconds */
 		});
 
-		xhr.open("POST","http://localhost:8888/post_auth.php"); //replace by url var
+		xhr.open("POST",url); //replace by url var
 		xhr.send({
 			login: user_args.login,
 			password: Ti.Utils.md5HexDigest(user_args.password1),
 			username: user_args.username
-		});  // automatically serializing JavaScript object graphs into form-encoded POST parameters		
-		//return json.success;
-		return true;       	
+		});  // automatically serializing JavaScript object graphs into form-encoded POST parameters		     	
 	} catch(e) {
-
+		
 		Ti.API.info('[DEV] postUserInfo web service failed : ' + e);
-
+		
 	}
 };
 
@@ -140,7 +131,6 @@ exports.getUserInfo = function(login){
 		        // this.responseText holds the raw text return of the message (used for text/JSON)
 		        // this.responseXML holds any returned XML (including SOAP)
 		        // this.responseData holds any returned binary data
-		        Ti.API.info(this.responseText);
 		        json = JSON.parse(this.responseText);
 		    },
 		    onerror: function(e) {
@@ -152,7 +142,7 @@ exports.getUserInfo = function(login){
 
 		xhr.open("GET","http://localhost:8888/post_auth.php"); //replace by url var
 		xhr.send();  // request is actually sent with this statement
-
+		
 		//return json;
 		//return false;
 		json = {
@@ -178,8 +168,7 @@ exports.getCircuits = function(userId){
 
 	//Check user infos from database server
 	try{ 
-
-		var url = 'http://EasyWalk.com/WebServ/API/Userinfo/login=' + userId + '&format=json'; 
+		var url = 'http://localhost:8888/EasyWalk/Services/WebServ/API/GetCircuitsUser.php?idUser='+ userId +'&format=json'; 
         var json;
         var xhr = Ti.Network.createHTTPClient({
 	    	onload: function(e) {
@@ -187,8 +176,7 @@ exports.getCircuits = function(userId){
 		        // this.responseText holds the raw text return of the message (used for text/JSON)
 		        // this.responseXML holds any returned XML (including SOAP)
 		        // this.responseData holds any returned binary data
-		        Ti.API.info(this.responseText);
-		        json = JSON.parse(this.responseText);
+		       	Ti.App.fireEvent(jsonParameters.eventName, {'dataXHR': JSON.parse(this.responseText)});
 		    },
 		    onerror: function(e) {
 				// this function is called when an error occurs, including a timeout
@@ -197,9 +185,16 @@ exports.getCircuits = function(userId){
 		    timeout: 5000  /* in milliseconds */
 		});
 
-		xhr.open("GET","http://localhost:8888/post_auth.php"); //replace by url var
+		xhr.open("GET",url,true); //replace by url var
 		xhr.send();  // request is actually sent with this statement
 		
+	} catch(e) {
+
+		Ti.API.info('[DEV] login web service failed : ' + e);
+
+	}
+		
+		/*
 		json = {
 		  	"posts":[{
 		  		"circuit":{
@@ -266,13 +261,7 @@ exports.getCircuits = function(userId){
 			  	}
 		  	}]
 		  };
-		  
-		  return json;
-	} catch(e) {
-
-		Ti.API.info('[DEV] login web service failed : ' + e);
-
-	}
+		  */
 };
 
 

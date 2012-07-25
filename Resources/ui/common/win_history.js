@@ -11,8 +11,7 @@ var data = [];
 var svc_web = (isAndroid) ? require('services/resources_services/web') : require('services/resources_services/web');
 
 //Take all traces records
-var json = svc_web.getTraces(userId);
-
+var json = svc_web.getCircuits();
 
 var images = [
 	'http://i.ytimg.com/vi/CzyilSByWbo/0.jpg',
@@ -29,9 +28,9 @@ var images = [
 
 for (var i=0; i<10; i++) {
 	var row = Ti.UI.createTableViewRow({height:'auto',backgroundColor:'#ffffff',selectedBackgroundColor:'#dddddd',hasDetail:true});	
-
+	
 	var lab_title = Ti.UI.createLabel({
-		text: json.posts[i].circuit.Title + ' ' + json.posts[i].circuit.Date,
+		text: json.posts[i].circuit.Title,
 		color: '#b40000',
 		textAlign:'left',
 		left:70,
@@ -43,7 +42,7 @@ for (var i=0; i<10; i++) {
 	
 	
 	var lab_desc = Ti.UI.createLabel({
-		text: json.posts[i].circuit.Difficulty + ' - ' +json.posts[i].circuit.Distance + ' km - ' + json.posts[i].circuit.Duration,
+		text: json.posts[i].circuit.Difficulty + ' - ' + json.posts[i].circuit.Distance + ' km - ' + json.posts[i].circuit.Duration,
 		color: '#111',
 		textAlign:'left',
 		left:70,
@@ -101,6 +100,7 @@ var cancel = Titanium.UI.createButton({
 	title:'Cancel',
 	style:Titanium.UI.iPhone.SystemButtonStyle.DONE
 });
+
 cancel.addEventListener('click', function()
 {
 	win.setRightNavButton(edit);

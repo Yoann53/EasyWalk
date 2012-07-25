@@ -51,43 +51,41 @@ exports.getView = function(){
 			//Handle all textfield values
 			var obj_params = {
 				login : txt_login.value,
-				password : txt_password.value,
+				password : Ti.Utils.md5HexDigest(txt_password.value),
 			}
-
+			
 			//Invoke profile services
 			var svc_profile = (isAndroid) ? require('../../services/business_services/profile') : require('services/business_services/profile');
-
-
+			
 			//Call signup service to register the current user on webserver
-			var result = svc_profile.login(obj_params);	
-
-			if(typeof(result) == 'string'){
-
-				alert(result);
-
-			} else if(typeof(result) == 'object') {
-				ent_user = result;
-
-				var win_start = Titanium.UI.createWindow({  
-			    	title:'Bienvenue sur EasyWalk',
-			    	backgroundColor:'#336699',
-			    	//url:'../start.js'  
-				});
-
-				//Ti.UI.currentTab.open(win_start);
-
-			} else {
-
-				alert('erreur d\'authentification');
-
-			}
-
+			svc_profile.login(obj_params, callbackLogin);
+			
 		} catch(e) {
 
 			Ti.API.info('[DEV] Login ui EventListener failed : ' + e);
 
 		}
 	});
+	
+	function callbackLogin(result){
+		
+		if(typeof(result) == 'string'){		
+			
+			alert(result);
+				
+		} else if(typeof(result) == 'object') {
+			
+			ent_user = result;
+			var tabgroup = (isAndroid) ? require('../common/ApplicationTabGroup') : require('ui/common/ApplicationTabGroup');
+			tabgroup.ApplicationTabGroup();
+			
+		} else {
+
+			alert('erreur d\'authentification');
+
+		}
+		
+	}
 
 	view_login.add(txt_login);
 	view_login.add(txt_password);

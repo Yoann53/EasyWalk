@@ -97,6 +97,7 @@ exports.getView = function(){
 	btn_send.addEventListener('click', function(){
 		
 		try{
+			
 			//Handle all textfield values
 			var obj_params = {
 				login : txt_login.value,
@@ -107,29 +108,29 @@ exports.getView = function(){
 
 			//Invoke profile services
 			var svc_profile = (isAndroid) ? require('../../services/business_services/profile') : require('services/business_services/profile');
-
-			//Call signup service to register the current user on webserver
-			var result  = svc_profile.signup(obj_params);
 			
-			//Tempo to be sure we have time to receive the webservice response
-			setTimeout(function(){
-       			
-       			if(typeof(result) == 'string'){
-					alert(result);
-				} else if(typeof(result) == 'object') {
-					ent_user = result;
-					
-				} else {
-					alert('erreur d\'inscription');
-				}
-      		}, 6000);
+			//Call signup service to register the current user on webserver
+			svc_profile.signup(obj_params, callbackSignUp);
 			
 		} catch(e) {
 			Ti.API.info('[DEV] SignUp ui EventListener failed : ' + e);
 		}
-
 	});
-
+	
+	function callbackSignUp(result){
+		
+		if(typeof(result) == 'string'){
+			alert(result);
+		} else if(typeof(result) == 'object') {
+			ent_user = result;
+			var tabgroup = (isAndroid) ? require('../common/ApplicationTabGroup') : require('ui/common/ApplicationTabGroup');
+			tabgroup.ApplicationTabGroup();
+		} else {
+			alert('erreur lors de l\'inscription');
+		}
+		
+	}
+	
 	view_signup.add(txt_login);
 	view_signup.add(txt_password);
 	view_signup.add(txt_confirm_password);
